@@ -8,13 +8,15 @@ Obrazy budowane są przez GitHub Actions (`.github/workflows/deploy-production.y
 
 ## Pierwsze uruchomienie na Pi
 
-1. Skopiuj do katalogu na Pi: `docker-compose.prod.yml`, `nginx/`, `scripts/`, `.env.production.template`.
+1. Skopiuj do katalogu na Pi: `docker-compose.prod.yml`, `scripts/`, `.env.production.template`.
 2. `cp .env.production.template .env.production` i uzupełnij hasła (`openssl rand -base64 32`) oraz `DATA_PATH` (SSD).
-3. Utwórz katalogi danych: `mkdir -p $DATA_PATH/postgres $DATA_PATH/backups logs/backend logs/nginx`.
+3. Utwórz katalogi danych: `mkdir -p $DATA_PATH/postgres $DATA_PATH/backups logs/backend`.
 4. Zaloguj się do GHCR: `echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_USER --password-stdin`.
 5. `docker compose -f docker-compose.prod.yml --env-file .env.production up -d`.
+   Aplikacja jest dostępna na `http://<pi>:8020` (port zmienisz przez `FRONTEND_PORT`). Backend nie publikuje portu:
+   `/api` przechodzi przez nginx w kontenerze frontendu do `backend:8080` w sieci compose.
 6. Zaloguj się jako `admin@example.com` / `admin123` i **od razu zmień hasło** (Profil → Zmiana hasła).
-7. HTTPS: patrz [docs/adr/002-https.md](docs/adr/002-https.md) (wymagane pod skaner kodów w fazie 7).
+7. HTTPS: patrz [docs/adr/002-https.md](docs/adr/002-https.md) (wymagane pod skaner kodów w fazie 7). Terminator TLS kieruje ruch na port 8020.
 
 ## Aktualizacja do nowej wersji
 

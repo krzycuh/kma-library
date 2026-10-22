@@ -49,6 +49,7 @@ class SecurityConfig(
                         "/api/auth/login",
                         "/api/auth/refresh",
                         "/actuator/health",
+                        "/api/health",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",

@@ -15,7 +15,7 @@ Aplikacja webowa (mobile-first, PWA) do prowadzenia rejestru przeczytanych ksią
 - **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS + TanStack Query + React Hook Form + Zod; Vitest, Playwright; PWA
 - **Backend:** Kotlin + Spring Boot 3 + Spring Security (JWT) + Spring Data JPA + Flyway; JUnit 5 + MockK + ArchUnit; ktlint
 - **Baza:** PostgreSQL 16
-- **Infra:** Docker + Docker Compose + nginx + GitHub Actions (obrazy w GHCR), produkcja na Raspberry Pi
+- **Infra:** Docker + Docker Compose (nginx wbudowany w obraz frontendu serwuje SPA i proxy'uje `/api`) + GitHub Actions (obrazy w GHCR), produkcja na Raspberry Pi
 
 ## Struktura
 
@@ -24,7 +24,6 @@ kma-library/
 ├── backend/     # Kotlin + Spring Boot (pakiet pl.kmazurek.library: domain / application / infrastructure / config)
 ├── frontend/    # React + TypeScript (src/pages, components, api, types, i18n)
 ├── docs/        # plan, projekt funkcjonalny, ADR, podsumowania faz
-├── nginx/       # reverse proxy (prod)
 ├── scripts/     # backup / restore / admin
 └── .github/workflows/
 ```
@@ -49,7 +48,7 @@ cd frontend && npm run test:e2e              # Playwright, wymaga działającego
 
 ## Wdrożenie
 
-Zobacz [prod-deploy.md](prod-deploy.md) (obrazy z GHCR, `docker-compose.prod.yml`, `.env.production.template`) oraz [ADR 002 – HTTPS](docs/adr/002-https.md).
+Produkcja to trzy kontenery: PostgreSQL, backend (bez publikowanego portu) i frontend wystawiony na porcie 8020 (`FRONTEND_PORT`), którego nginx serwuje SPA i proxy'uje `/api` do backendu. Zobacz [prod-deploy.md](prod-deploy.md) oraz [ADR 002 – HTTPS](docs/adr/002-https.md).
 
 ## Dokumentacja
 

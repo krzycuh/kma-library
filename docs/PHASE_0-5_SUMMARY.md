@@ -20,7 +20,7 @@ Data: 2026-10-22. Zakres: bootstrap, auth, katalog + przeczytane, biblioteczka +
 - Testy: Vitest (utils, hook auth), Playwright E2E `e2e/library-flow.spec.ts` (rejestracja → przeczytana → półka → pożyczenie → zwrot) uruchamiany na pełnym stacku.
 
 ### Infrastruktura
-- `docker-compose.localhost.yml` (tylko Postgres), `docker-compose.prod.yml` (Postgres, backend, frontend, nginx) – bez Redisa i ntfy.
+- `docker-compose.localhost.yml` (tylko Postgres), `docker-compose.prod.yml` (Postgres, backend, frontend na porcie 8020) – bez Redisa, ntfy i osobnego nginx: nginx w obrazie frontendu serwuje SPA, proxy'uje `/api` (z `Host`/`X-Forwarded-*`, backend ma `forward-headers-strategy: framework`, więc same-origin nie podlega CORS), dodaje nagłówki bezpieczeństwa i limituje logowanie (429).
 - GitHub Actions: `backend-ci.yml`, `frontend-ci.yml`, `deploy-production.yml` (obrazy multi-arch do GHCR).
 - `prod-deploy.md`, `.env.production.template`, skrypty backupu/restore, ADR 002 (HTTPS).
 

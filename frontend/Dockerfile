@@ -28,6 +28,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY proxy-params.conf /etc/nginx/proxy-params.conf
 
 # Expose port
 EXPOSE 80

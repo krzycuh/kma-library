@@ -14,7 +14,7 @@ KMA Library to druga aplikacja domowa po [kma-poker-stats](https://github.com/kr
 - **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS + TanStack Query + React Hook Form + Zod + react-router; Vitest + Testing Library; PWA.
 - **Backend:** Kotlin + Spring Boot 3.x (Web, Security, Validation, Data JPA, Actuator), JWT (access + refresh), Flyway, springdoc-openapi, bucket4j; JUnit 5 + MockK + Kotest + Testcontainers + ArchUnit; Gradle Kotlin DSL, JDK 21, ktlint.
 - **Baza:** PostgreSQL 16.
-- **Infra:** Docker multi-stage + `Dockerfile.prebuilt`, docker-compose (`localhost`, `prod`), nginx reverse proxy, GitHub Actions (CI + obrazy do GHCR), Raspberry Pi z danymi na SSD.
+- **Infra:** Docker multi-stage + `Dockerfile.prebuilt`, docker-compose (`localhost`, `prod`), nginx wbudowany w obraz frontendu (SPA + proxy `/api`), GitHub Actions (CI + obrazy do GHCR), Raspberry Pi z danymi na SSD.
 
 Uzasadnienie: zero kosztu nauki, możliwość kopiowania całych modułów (auth, layout, CI, deploy), spójne operacje (backup, aktualizacja) dla obu aplikacji.
 
@@ -28,6 +28,7 @@ Uzasadnienie: zero kosztu nauki, możliwość kopiowania całych modułów (auth
 | Pakiet | `pl.kmazurek` | `pl.kmazurek.library` | unikanie kolizji przy pracy w obu projektach |
 | Java w CI | 17 (niespójne z toolchain 21) | 21 | poprawka błędu |
 | Node | 18 | 20 LTS | wsparcie |
+| nginx | osobny kontener reverse proxy przed frontendem i backendem | tylko nginx w obrazie frontendu; backend bez publikowanego portu, aplikacja na porcie 8020 | jedna aplikacja na Pi, o jeden kontener i jeden config mniej; TLS i tak terminowany przed aplikacją (ADR 002) |
 
 ### Architektura: DDD + Clean Architecture, cztery bounded contexts
 

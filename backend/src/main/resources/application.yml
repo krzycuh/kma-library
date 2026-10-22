@@ -12,6 +12,11 @@ spring:
   cache:
     type: simple
 
+server:
+  # Behind the frontend nginx (or a TLS terminator) trust X-Forwarded-* so that the request's
+  # scheme/host/port match the browser's origin and same-origin requests are not treated as CORS.
+  forward-headers-strategy: framework
+
 app:
   registration:
     enabled: ${APP_REGISTRATION_ENABLED:true}
