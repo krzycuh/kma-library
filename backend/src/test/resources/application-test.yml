@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16:///test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+  cache:
+    type: simple
+
+app:
+  registration:
+    enabled: true
+
+jwt:
+  secret: test-secret-key-that-is-long-enough-for-jwt-signing-minimum-256-bits
+  expiration-hours: 1
+  refresh-expiration-days: 1
+
+logging:
+  level:
+    pl.kmazurek.library: DEBUG

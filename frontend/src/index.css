@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .profit-text {
+    @apply text-profit;
+  }
+  .loss-text {
+    @apply text-loss;
+  }
+  .breakeven-text {
+    @apply text-gray-600;
+  }
+}

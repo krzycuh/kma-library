@@ -1,0 +1,48 @@
+# IDEs
+.idea/
+.vscode/
+.obsidian/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.localhost
+.env.production
+backups/
+data/
+
+# Build artifacts
+dist/
+build/
+target/
+out/
+
+# Gradle
+.gradle/
+gradle-app.setting
+.gradletasknamecache
+
+# Dependencies
+node_modules/
+
+# Test coverage
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# Docker
+*.pid
+docker-compose.override.yml
