@@ -7,7 +7,7 @@ Plan pracy nad aplikacją do zarządzania przeczytanymi książkami i domową bi
 - Backend: Kotlin 1.9 + Spring Boot 3.3 (Web, Security, Validation, Data JPA, Actuator) + JWT (jjwt) + Flyway + PostgreSQL 16 + springdoc-openapi + bucket4j, ktlint, JUnit 5 + MockK + Kotest + Testcontainers + ArchUnit. Gradle Kotlin DSL, JDK 21.
 - Infra: Docker (multi-stage + `Dockerfile.prebuilt`), docker-compose `localhost` i `prod`, nginx reverse proxy, GitHub Actions (CI backend/frontend + build i push obrazów do GHCR), produkcja na Raspberry Pi.
 
-**Szacunek:** MVP (fazy 0–5) to ok. 6–8 tygodni pracy po godzinach. Każda faza kończy się działającą, wdrażalną wersją.
+**Status:** fazy 0–5 zrealizowane (patrz `docs/PHASE_0-5_SUMMARY.md`). Każda faza kończy się działającą, wdrażalną wersją.
 
 ---
 
@@ -73,7 +73,7 @@ Cel: pierwszy realny użytek – rejestr przeczytanych.
 Backend:
 - `domain/model/catalog/{Book,BookId,BookTitle,AuthorName,Isbn,BookSource}`; `Isbn` z walidacją ISBN-10/13 i normalizacją do 13 (TDD – to najbardziej "algorytmiczny" kawałek, dobry na start).
 - `domain/service/BookDeduplicationKey` (normalizacja tytuł+autor: lowercase, bez diakrytyków, bez interpunkcji, zbite spacje).
-- `domain/model/reading/{ReadingEntry,ReadingEntryId,Rating,DatePrecision,ReadingStatus}` + niezmienniki.
+- `domain/model/reading/{ReadingEntry,ReadingEntryId,Rating,FinishedPeriod,ReadingStatus}` + niezmienniki.
 - `domain/repository/{BookRepository,ReadingEntryRepository}`; port `application/service/BookMetadataProvider` + `infrastructure/catalog/NoOpBookMetadataProvider`.
 - Use case'y: `catalog/{FindOrCreateBook,SearchBooks,GetBook,UpdateBook}`, `reading/{AddReadingEntry,UpdateReadingEntry,DeleteReadingEntry,ListReadingEntries,GetReadingSummary}`. `AddReadingEntry` przyjmuje albo `bookId`, albo `title+authors(+isbn)` i wewnętrznie woła `FindOrCreateBook`.
 - Kontrolery `BookController`, `ReadingEntryController`; DTO; `ReadingEntryRepository.findByReader(...)` z filtrami (rok, ocena, fraza) i paginacją (Spring Data `Specification` lub zapytania JPQL).
@@ -82,7 +82,7 @@ Backend:
 
 Frontend:
 - `types/{book,reading}.ts`, `api/{books,readingEntries}.ts`.
-- Komponenty: `BookPicker` (autocomplete po `/books?search=`, opcja "Dodaj: {tytuł}"), `RatingStars`, `FuzzyDateInput` (rok / miesiąc / dzień), `BookCard`.
+- Komponenty: `BookPicker` (autocomplete po `/books?search=`, nowy tytuł = nowy wpis w katalogu), `RatingStars`, `YearMonthInput` (rok + opcjonalny miesiąc), `BookCover`.
 - Strony: `/read` (lista + filtry), `/read/new`, `/read/:id/edit`, `/books/:id`.
 - Dashboard w wersji minimalnej: licznik "w tym roku", ostatnie 5 wpisów, przycisk "+ przeczytana".
 
@@ -159,12 +159,12 @@ Frontend:
 
 ---
 
-## Pytania do rozstrzygnięcia przed fazą 2
+## Decyzje podjęte przed fazą 2 (2026-10-22)
 
-| # | Pytanie | Propozycja |
+| # | Pytanie | Decyzja |
 |---|---------|------------|
 | 1 | Skala oceny | 1–5 gwiazdek (połówki nie) |
-| 2 | Data przeczytania | opcjonalna; precyzja dzień/miesiąc/rok (`DatePrecision`) |
+| 2 | Data przeczytania | opcjonalna; **rok + opcjonalny miesiąc, bez dnia** (`FinishedPeriod`) |
 | 3 | Wiele autorów | jedno pole tekstowe, rozdzielane `;` lub `,`, przechowywane jako lista |
 | 4 | Czy katalog książek wspólny dla wszystkich użytkowników | tak (deduplikacja po ISBN, potem po tytuł+autor); edycja: twórca lub admin |
 | 5 | Redis/ntfy w MVP | nie; cache in-memory, powiadomienia dopiero przy przeterminowanych pożyczeniach |

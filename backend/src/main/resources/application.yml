@@ -1,0 +1,91 @@
+spring:
+  application:
+    name: kma-library-backend
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  cache:
+    type: simple
+
+app:
+  registration:
+    enabled: ${APP_REGISTRATION_ENABLED:true}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/kmalibrary}
+    username: ${DATABASE_USERNAME:kmalibrary}
+    password: ${DATABASE_PASSWORD:kmalibrary}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+logging:
+  level:
+    pl.kmazurek.library: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    audit: INFO
+
+jwt:
+  secret: changeme-this-is-a-development-secret-key-only-must-be-at-least-256-bits-long
+  expiration-hours: 24
+  refresh-expiration-days: 7
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+server:
+  port: ${PORT:8080}
+
+logging:
+  level:
+    pl.kmazurek.library: INFO
+    org.springframework: INFO
+    org.hibernate: INFO
+    audit: INFO
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-hours: ${JWT_EXPIRATION_HOURS:24}
+  refresh-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:7}

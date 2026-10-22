@@ -78,8 +78,7 @@ data class ReadingEntry(
     val id: ReadingEntryId,
     val readerId: UserId,
     val bookId: BookId,
-    val finishedOn: LocalDate?,            // null = "nie pamiętam kiedy"
-    val datePrecision: DatePrecision,      // DAY | MONTH | YEAR – UI pozwala wpisać sam rok lub miesiąc
+    val finishedOn: FinishedPeriod?,       // null = "nie pamiętam kiedy"; FinishedPeriod(year, month?) – bez dnia
     val rating: Rating? = null,            // VO: 1..5
     val review: String? = null,            // krótka notatka
     val createdAt, val updatedAt,
@@ -87,7 +86,7 @@ data class ReadingEntry(
 ```
 
 - Jedna książka może mieć wiele wpisów u jednego czytelnika (ponowne czytanie).
-- Niezmienniki: `finishedOn` nie może być z przyszłości; `rating` w zakresie 1..5.
+- Niezmienniki: `finishedOn` nie może być z przyszłości; `rating` w zakresie 1..5; miesiąc wymaga roku.
 - Status "w trakcie czytania" / "chcę przeczytać" **nie** jest w MVP, ale pole `status: ReadingStatus { FINISHED }` jest przygotowane jako enum, żeby dodać `IN_PROGRESS`, `WANT_TO_READ`, `ABANDONED` bez migracji modelu domenowego (migracja SQL: tylko nowe wartości).
 
 ### 3.4 Shelf (biblioteczka)
@@ -146,7 +145,7 @@ Autoryzacja: operacja na `ShelfItem` wymaga, by aktualny użytkownik był człon
 - Jako użytkownik loguję się i pozostaję zalogowany (refresh token) na telefonie.
 
 **Przeczytane**
-- Dodaję przeczytaną książkę podając tytuł i autora; opcjonalnie datę (rok / miesiąc / dzień), ocenę 1–5 i notatkę.
+- Dodaję przeczytaną książkę podając tytuł i autora; opcjonalnie rok (i ewentualnie miesiąc) przeczytania, ocenę 1–5 i notatkę.
 - Przeglądam listę przeczytanych posortowaną po dacie; filtruję po roku i ocenie; wyszukuję po tytule/autorze.
 - Edytuję i usuwam wpis.
 - Widzę proste podsumowanie: liczba książek w tym roku, średnia ocena, najlepiej ocenione.
@@ -185,11 +184,11 @@ reading_entries (
   id UUID PK, reader_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   book_id UUID NOT NULL REFERENCES books(id),
   status VARCHAR(20) NOT NULL DEFAULT 'FINISHED',
-  finished_on DATE NULL, date_precision VARCHAR(10) NOT NULL DEFAULT 'DAY',
+  finished_year SMALLINT NULL, finished_month SMALLINT NULL CHECK (finished_month BETWEEN 1 AND 12),
   rating SMALLINT NULL CHECK (rating BETWEEN 1 AND 5), review TEXT,
   created_at, updated_at
 )
-INDEX idx_reading_entries_reader_finished ON reading_entries(reader_id, finished_on DESC)
+INDEX idx_reading_entries_reader ON reading_entries(reader_id, finished_year DESC, finished_month DESC)
 
 libraries (id UUID PK, name VARCHAR(255) NOT NULL, owner_id UUID NOT NULL REFERENCES users(id), created_at, updated_at)
 
@@ -227,18 +226,19 @@ Plus funkcja/trigger `update_updated_at_column()` jak w poker-stats oraz `V2__in
 | POST | `/books` | find-or-create (tytuł, autor, opcjonalnie ISBN) |
 | GET/PUT | `/books/{id}` | szczegóły / edycja (twórca lub admin) |
 | GET | `/books/lookup?isbn=` | faza 6: metadane z katalogu zewnętrznego |
-| GET | `/reading-entries?year=&rating=&search=&page=` | moje przeczytane |
-| POST | `/reading-entries` | `{ bookId }` lub `{ title, authors, isbn? }` + data/ocena |
+| GET | `/reading-entries?year=&rating=&search=&bookId=&page=` | moje przeczytane |
+| POST | `/reading-entries` | `{ book: { bookId } | { title, authors, isbn? }, finishedYear?, finishedMonth?, rating?, review? }` |
 | GET/PUT/DELETE | `/reading-entries/{id}` | |
 | GET | `/reading-entries/summary?year=` | statystyki do dashboardu |
 | GET | `/libraries` | moje biblioteczki (MVP: jedna) |
-| GET | `/libraries/{id}/items?status=&search=&page=` | półka |
+| GET | `/libraries/{id}/items?status=&search=&bookId=&page=` | półka |
 | POST | `/libraries/{id}/items` | dodaj egzemplarz |
 | GET/PUT/DELETE | `/shelf-items/{id}` | |
 | POST | `/shelf-items/{id}/loans` | pożycz |
-| POST | `/shelf-items/{id}/loans/{loanId}/return` | zwrot |
-| GET | `/libraries/{id}/loans?active=true` | lista pożyczonych |
-| GET/PUT | `/admin/users`, `/admin/users/{id}` | admin |
+| POST | `/shelf-items/{id}/return` | zwrot aktywnego pożyczenia |
+| GET | `/libraries/{id}/loans` | lista aktualnie pożyczonych |
+| GET | `/dashboard` | dane na stronę startową |
+| GET | `/admin/users`, PATCH `/admin/users/{id}/active`, PATCH `/admin/users/{id}/password` | admin |
 
 Wszystkie listy paginowane przez `PagedResponse` (jak w poker-stats). Błędy przez `GlobalExceptionHandler` z mapowaniem wyjątków domenowych na 400/403/404/409.
 
@@ -251,7 +251,7 @@ Wszystkie listy paginowane przez `PagedResponse` (jak w poker-stats). Błędy pr
 | `/login`, `/register` | kopiowane z poker-stats |
 | `/` | Dashboard: "przeczytane w tym roku", "pożyczone (N)", ostatnio dodane, skróty "+ przeczytana", "+ na półkę" |
 | `/read` | lista przeczytanych (karty: okładka/placeholder, tytuł, autor, data, gwiazdki); filtry rok/ocena; wyszukiwarka |
-| `/read/new`, `/read/:id/edit` | formularz: pole tytuł + autor z autouzupełnianiem z `/books?search=`, data (przełącznik rok/miesiąc/dzień), ocena gwiazdkami, notatka |
+| `/read/new`, `/read/:id/edit` | formularz: pole tytuł + autor z autouzupełnianiem z `/books?search=`, rok + opcjonalny miesiąc, ocena gwiazdkami, notatka |
 | `/shelf` | półka; zakładki: Wszystkie / Na półce / Pożyczone |
 | `/shelf/new` | dodaj egzemplarz |
 | `/shelf/:id` | karta egzemplarza: status, przycisk "Pożycz" (modal: imię, nazwisko, data, termin), "Zwrócono", historia pożyczeń, "Oznacz jako przeczytaną" |
@@ -261,7 +261,7 @@ Wszystkie listy paginowane przez `PagedResponse` (jak w poker-stats). Błędy pr
 
 Komponenty współdzielone z poker-stats (kopiowane 1:1): `AppLayout`, `Navigation`, `ProtectedRoute`, `ErrorBoundary`, `LoadingSpinner`, `LoadingSkeleton`, `EmptyState`, `ErrorMessage`, `ConfirmationModal`, `PageHeader`, `useToast`, `AuthContext`, `api/client.ts`.
 
-Nowe komponenty: `BookPicker` (autocomplete + "dodaj nową"), `RatingStars`, `FuzzyDateInput`, `LoanModal`, `BookCard`, `ShelfItemStatusBadge`.
+Nowe komponenty: `BookPicker` (autocomplete + "dodaj nową"), `RatingStars`, `YearMonthInput`, `LoanModal`, `BookCover`, `ShelfItemStatusBadge`, `Pagination`.
 
 ---
 
