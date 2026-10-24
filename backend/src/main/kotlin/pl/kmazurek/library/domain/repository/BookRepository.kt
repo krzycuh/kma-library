@@ -22,4 +22,6 @@ interface BookRepository {
     ): List<Book>
 
     fun save(book: Book): Book
+
+    fun deleteById(id: BookId)
 }

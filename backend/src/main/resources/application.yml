@@ -20,6 +20,15 @@ server:
 app:
   registration:
     enabled: ${APP_REGISTRATION_ENABLED:true}
+  catalog:
+    # External catalog for ISBN lookup: none | openlibrary | google
+    provider: ${APP_CATALOG_PROVIDER:openlibrary}
+    timeout: ${APP_CATALOG_TIMEOUT:3s}
+    openlibrary:
+      base-url: ${APP_CATALOG_OPENLIBRARY_BASE_URL:https://openlibrary.org}
+    google:
+      base-url: ${APP_CATALOG_GOOGLE_BASE_URL:https://www.googleapis.com}
+      api-key: ${APP_CATALOG_GOOGLE_API_KEY:}
 
 ---
 spring:

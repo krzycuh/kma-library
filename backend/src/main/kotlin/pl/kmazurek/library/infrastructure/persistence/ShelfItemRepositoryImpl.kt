@@ -3,6 +3,7 @@ package pl.kmazurek.library.infrastructure.persistence
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import pl.kmazurek.library.domain.model.catalog.BookId
 import pl.kmazurek.library.domain.model.shelf.LibraryId
 import pl.kmazurek.library.domain.model.shelf.ShelfItem
 import pl.kmazurek.library.domain.model.shelf.ShelfItemId
@@ -50,4 +51,10 @@ class ShelfItemRepositoryImpl(
     }
 
     override fun deleteById(id: ShelfItemId) = jpaRepository.deleteById(id.value)
+
+    @Transactional
+    override fun reassignBook(
+        from: BookId,
+        to: BookId,
+    ): Int = jpaRepository.reassignBook(from.value, to.value)
 }

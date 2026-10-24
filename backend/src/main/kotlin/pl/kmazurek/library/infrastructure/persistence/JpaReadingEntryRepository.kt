@@ -3,6 +3,7 @@ package pl.kmazurek.library.infrastructure.persistence
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -49,4 +50,11 @@ interface JpaReadingEntryRepository : JpaRepository<ReadingEntryJpaEntity, UUID>
     fun findDistinctYears(
         @Param("readerId") readerId: UUID,
     ): List<Short>
+
+    @Modifying
+    @Query("UPDATE ReadingEntryJpaEntity e SET e.bookId = :toId WHERE e.bookId = :fromId")
+    fun reassignBook(
+        @Param("fromId") from: UUID,
+        @Param("toId") to: UUID,
+    ): Int
 }

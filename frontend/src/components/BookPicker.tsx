@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { booksApi } from '../api/books';
 import type { Book } from '../types/book';
 import { t } from '../i18n';
 import { bookPickerValueFromBook, emptyBookPickerValue, type BookPickerValue } from '../utils/bookPicker';
 import { formatAuthors } from '../utils/format';
+import { toIsbn13 } from '../utils/isbn';
+import { isbnLookupErrorMessage } from '../utils/isbnLookup';
 
 interface BookPickerProps {
   value: BookPickerValue;
@@ -19,11 +21,33 @@ const inputClasses =
 /**
  * Title + author fields with catalog autocomplete. Selecting a suggestion locks the fields
  * to the catalog entry; typing a new title creates a new catalog entry on save.
+ * "Fetch data" next to the ISBN selects the book from our catalog or imports it from the external one.
  */
 export function BookPicker({ value, onChange, disabled = false, showIsbn = true }: BookPickerProps) {
   const [open, setOpen] = useState(false);
   const [debounced, setDebounced] = useState('');
+  const [isbnError, setIsbnError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
+
+  const isbnMutation = useMutation({
+    mutationFn: (isbn: string) => booksApi.importByIsbn(isbn),
+    onSuccess: (book) => {
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+      setIsbnError(null);
+      onChange(bookPickerValueFromBook(book));
+    },
+    onError: (err) => setIsbnError(isbnLookupErrorMessage(err)),
+  });
+
+  const fetchByIsbn = () => {
+    const isbn = toIsbn13(value.isbn);
+    if (!isbn) {
+      setIsbnError(t.isbn.invalid);
+      return;
+    }
+    isbnMutation.mutate(isbn);
+  };
 
   useEffect(() => {
     const handle = setTimeout(() => setDebounced(value.title.trim()), 250);
@@ -136,15 +160,42 @@ export function BookPicker({ value, onChange, disabled = false, showIsbn = true 
               <label htmlFor="book-isbn" className="block text-sm font-medium text-gray-700">
                 {t.book.isbn} <span className="text-gray-400">({t.book.isbnHint})</span>
               </label>
-              <input
-                id="book-isbn"
-                type="text"
-                inputMode="numeric"
-                value={value.isbn}
-                disabled={disabled}
-                onChange={(e) => onChange({ ...value, isbn: e.target.value })}
-                className={inputClasses}
-              />
+              <div className="flex gap-2">
+                <input
+                  id="book-isbn"
+                  type="text"
+                  inputMode="numeric"
+                  value={value.isbn}
+                  disabled={disabled}
+                  onChange={(e) => {
+                    setIsbnError(null);
+                    onChange({ ...value, isbn: e.target.value });
+                  }}
+                  onKeyDown={(e) => {
+                    // Enter in the ISBN field fetches data instead of submitting the whole form
+                    if (e.key === 'Enter' && value.isbn.trim()) {
+                      e.preventDefault();
+                      fetchByIsbn();
+                    }
+                  }}
+                  aria-invalid={isbnError !== null}
+                  aria-describedby={isbnError ? 'book-isbn-error' : undefined}
+                  className={inputClasses}
+                />
+                <button
+                  type="button"
+                  onClick={fetchByIsbn}
+                  disabled={disabled || isbnMutation.isPending || !value.isbn.trim()}
+                  className="flex-shrink-0 rounded-lg border border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isbnMutation.isPending ? t.isbn.fetching : t.isbn.fetch}
+                </button>
+              </div>
+              {isbnError && (
+                <p id="book-isbn-error" className="mt-1 text-sm text-red-700" role="alert">
+                  {isbnError}
+                </p>
+              )}
             </div>
           )}
         </>

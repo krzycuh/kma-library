@@ -45,6 +45,38 @@ data class Book(
             updatedAt = LocalDateTime.now(),
         )
 
+    /**
+     * Fills in data this entry is missing from another description of the same book. Never overwrites.
+     * The external id travels together with its source.
+     */
+    fun fillGapsFrom(
+        isbn: Isbn?,
+        publishedYear: Int?,
+        coverUrl: String?,
+        source: BookSource,
+        externalId: String?,
+    ): Book {
+        val takeExternal = this.externalId == null && externalId != null
+        val filled =
+            copy(
+                isbn = this.isbn ?: isbn,
+                publishedYear = this.publishedYear ?: publishedYear,
+                coverUrl = this.coverUrl ?: coverUrl,
+                source = if (takeExternal) source else this.source,
+                externalId = if (takeExternal) externalId else this.externalId,
+            )
+        return if (filled == this) this else filled.copy(updatedAt = LocalDateTime.now())
+    }
+
+    /**
+     * Result of merging a duplicate catalog entry into this one: this entry survives,
+     * keeping its own data and taking from the duplicate only what it lacks.
+     */
+    fun absorb(duplicate: Book): Book {
+        require(duplicate.id != id) { "Cannot merge a book into itself" }
+        return fillGapsFrom(duplicate.isbn, duplicate.publishedYear, duplicate.coverUrl, duplicate.source, duplicate.externalId)
+    }
+
     fun canBeEditedBy(
         userId: UserId,
         isAdmin: Boolean,

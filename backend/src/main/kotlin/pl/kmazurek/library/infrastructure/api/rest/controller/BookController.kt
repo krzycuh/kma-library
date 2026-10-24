@@ -13,11 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import pl.kmazurek.library.application.dto.BookDto
+import pl.kmazurek.library.application.dto.BookLookupDto
 import pl.kmazurek.library.application.dto.CreateBookRequest
+import pl.kmazurek.library.application.dto.ImportBookRequest
 import pl.kmazurek.library.application.dto.UpdateBookRequest
 import pl.kmazurek.library.application.usecase.catalog.FindOrCreateBook
 import pl.kmazurek.library.application.usecase.catalog.FindOrCreateBookCommand
 import pl.kmazurek.library.application.usecase.catalog.GetBook
+import pl.kmazurek.library.application.usecase.catalog.ImportBookByIsbn
+import pl.kmazurek.library.application.usecase.catalog.LookupBookByIsbn
 import pl.kmazurek.library.application.usecase.catalog.SearchBooks
 import pl.kmazurek.library.application.usecase.catalog.UpdateBook
 import pl.kmazurek.library.application.usecase.catalog.UpdateBookCommand
@@ -34,6 +38,8 @@ class BookController(
     private val getBook: GetBook,
     private val findOrCreateBook: FindOrCreateBook,
     private val updateBook: UpdateBook,
+    private val lookupBookByIsbn: LookupBookByIsbn,
+    private val importBookByIsbn: ImportBookByIsbn,
     private val auditLogger: AuditLogger,
 ) {
     @GetMapping
@@ -41,6 +47,24 @@ class BookController(
         @RequestParam(required = false) search: String?,
         @RequestParam(required = false, defaultValue = "10") limit: Int,
     ): ResponseEntity<List<BookDto>> = ResponseEntity.ok(searchBooks.execute(search, limit).map { BookDto.fromDomain(it) })
+
+    @GetMapping("/lookup")
+    fun lookup(
+        @RequestParam isbn: String,
+    ): ResponseEntity<BookLookupDto> = ResponseEntity.ok(BookLookupDto.fromResult(lookupBookByIsbn.execute(isbn)))
+
+    /**
+     * Ensures the catalog has the book with this ISBN (created from external metadata if needed).
+     */
+    @PostMapping("/import")
+    fun import(
+        authentication: Authentication,
+        @Valid @RequestBody request: ImportBookRequest,
+    ): ResponseEntity<BookDto> {
+        val book = importBookByIsbn.execute(request.isbn, authentication.userId())
+        auditLogger.log("BOOK_IMPORTED", details = mapOf("bookId" to book.id, "isbn" to request.isbn))
+        return ResponseEntity.ok(BookDto.fromDomain(book))
+    }
 
     @GetMapping("/{id}")
     fun get(

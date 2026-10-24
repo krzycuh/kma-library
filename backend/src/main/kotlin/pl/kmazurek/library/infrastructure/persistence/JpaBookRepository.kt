@@ -2,6 +2,7 @@ package pl.kmazurek.library.infrastructure.persistence
 
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -26,4 +27,11 @@ interface JpaBookRepository : JpaRepository<BookJpaEntity, UUID> {
         @Param("exact") exact: String,
         pageable: Pageable,
     ): List<BookJpaEntity>
+
+    // Bulk delete runs immediately, so a following update may take over the deleted row's unique ISBN
+    @Modifying
+    @Query("DELETE FROM BookJpaEntity b WHERE b.id = :id")
+    fun deleteNow(
+        @Param("id") id: UUID,
+    ): Int
 }

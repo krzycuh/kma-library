@@ -38,4 +38,12 @@ interface ShelfItemRepository {
     fun save(item: ShelfItem): ShelfItem
 
     fun deleteById(id: ShelfItemId)
+
+    /**
+     * Points every copy of one catalog book at another. Returns the number of moved items.
+     */
+    fun reassignBook(
+        from: BookId,
+        to: BookId,
+    ): Int
 }

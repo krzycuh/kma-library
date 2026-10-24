@@ -1,0 +1,29 @@
+{
+  "kind": "books#volumes",
+  "totalItems": 1,
+  "items": [
+    {
+      "kind": "books#volume",
+      "id": "wrOQLV6xB-wC",
+      "etag": "kz0Ksmnd1Lk",
+      "selfLink": "https://www.googleapis.com/books/v1/volumes/wrOQLV6xB-wC",
+      "volumeInfo": {
+        "title": "Fantastic Mr Fox",
+        "authors": ["Roald Dahl"],
+        "publisher": "Penguin UK",
+        "publishedDate": "1988-10-01",
+        "industryIdentifiers": [
+          { "type": "ISBN_10", "identifier": "0140328726" },
+          { "type": "ISBN_13", "identifier": "9780140328721" }
+        ],
+        "pageCount": 96,
+        "printType": "BOOK",
+        "language": "en",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=wrOQLV6xB-wC&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=wrOQLV6xB-wC&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+        }
+      }
+    }
+  ]
+}

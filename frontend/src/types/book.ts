@@ -37,3 +37,30 @@ export interface UpdateBookRequest {
   publishedYear?: number | null;
   coverUrl?: string | null;
 }
+
+/**
+ * Bibliographic data from an external catalog (Open Library / Google Books).
+ */
+export interface BookMetadata {
+  isbn: string;
+  title: string;
+  authors: string[];
+  publishedYear: number | null;
+  coverUrl: string | null;
+  source: BookSource;
+}
+
+/**
+ * ISBN lookup result: `book` if the ISBN is already in our catalog, otherwise `metadata`.
+ */
+export interface BookLookup {
+  isbn: string;
+  book: Book | null;
+  metadata: BookMetadata | null;
+}
+
+export interface MergeBooksResult {
+  target: Book;
+  movedReadingEntries: number;
+  movedShelfItems: number;
+}
