@@ -5,16 +5,22 @@
 
 set -e  # Exit on error
 set -u  # Exit on undefined variable
+set -o pipefail  # A failing pg_dump/gunzip fails the whole pipeline
 
 # ============================================
 # Configuration
 # ============================================
 
+# Work from the project root, so the script also runs from cron or another directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
+
 # Load environment variables
 if [ -f .env.production ]; then
     source .env.production
 else
-    echo "Error: .env.production file not found"
+    echo "Error: .env.production file not found in $PROJECT_ROOT"
     exit 1
 fi
 
@@ -67,15 +73,14 @@ create_backup() {
     log "Database: $DB_NAME"
     log "Backup file: $BACKUP_FILE"
     
-    # Create backup using pg_dump
+    # Create backup using pg_dump (plain SQL, compressed once by gzip on the host)
     docker exec "$DB_CONTAINER" pg_dump \
         -U "$DB_USER" \
         -d "$DB_NAME" \
         --clean \
         --if-exists \
         --create \
-        --compress=9 \
-        | gzip > "$BACKUP_FILE"
+        | gzip -9 > "$BACKUP_FILE"
     
     if [ $? -eq 0 ]; then
         BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
@@ -83,6 +88,7 @@ create_backup() {
         log "Backup size: $BACKUP_SIZE"
     else
         error "Backup failed"
+        rm -f "$BACKUP_FILE"
         exit 1
     fi
 }
@@ -90,7 +96,9 @@ create_backup() {
 verify_backup() {
     log "Verifying backup integrity..."
     
-    if gzip -t "$BACKUP_FILE" 2>/dev/null; then
+    # The archive must be valid gzip and hold a complete plain-SQL dump
+    if gzip -t "$BACKUP_FILE" 2>/dev/null \
+        && gunzip -c "$BACKUP_FILE" | tail -n 5 | grep -q "PostgreSQL database dump complete"; then
         log "Backup verification successful"
     else
         error "Backup verification failed - file may be corrupted"

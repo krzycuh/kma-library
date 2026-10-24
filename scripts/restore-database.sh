@@ -5,16 +5,22 @@
 
 set -e  # Exit on error
 set -u  # Exit on undefined variable
+set -o pipefail  # A failing pg_dump/gunzip fails the whole pipeline
 
 # ============================================
 # Configuration
 # ============================================
 
+# Work from the project root, so the script also runs from cron or another directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
+
 # Load environment variables
 if [ -f .env.production ]; then
     source .env.production
 else
-    echo "Error: .env.production file not found"
+    echo "Error: .env.production file not found in $PROJECT_ROOT"
     exit 1
 fi
 
@@ -117,22 +123,20 @@ restore_backup() {
     
     # Stop the backend to prevent connections
     log "Stopping backend service..."
-    docker-compose -f docker-compose.prod.yml stop backend
+    docker compose -f docker-compose.prod.yml --env-file .env.production stop backend
     
     # Restore database
     log "Restoring from backup..."
-    gunzip -c "$BACKUP_FILE" | docker exec -i "$DB_CONTAINER" psql -U "$DB_USER" -d postgres
-    
-    if [ $? -eq 0 ]; then
+    if gunzip -c "$BACKUP_FILE" | docker exec -i "$DB_CONTAINER" psql -v ON_ERROR_STOP=1 -U "$DB_USER" -d postgres; then
         log "Database restore completed successfully"
     else
-        error "Database restore failed"
+        error "Database restore failed (backend left stopped; the pre-restore backup is in $BACKUP_DIR)"
         exit 1
     fi
     
     # Restart backend
     log "Starting backend service..."
-    docker-compose -f docker-compose.prod.yml start backend
+    docker compose -f docker-compose.prod.yml --env-file .env.production start backend
     
     log "Waiting for backend to be healthy..."
     sleep 10
