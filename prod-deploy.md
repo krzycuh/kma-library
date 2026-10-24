@@ -12,7 +12,7 @@ Obrazy budowane są przez GitHub Actions (`.github/workflows/deploy-production.y
    Nie trzymaj tu plików compose innych aplikacji: współdzieliłyby `.env` i względne katalogi (`logs/`, `data/`).
    Projekt ma stałą nazwę `name: kma-library`, więc nie łączy się z innymi projektami compose.
 2. `cp .env.production.template .env.production` i uzupełnij hasła (`openssl rand -base64 32`) oraz `DATA_PATH` (SSD).
-3. Utwórz katalogi danych: `mkdir -p $DATA_PATH/postgres $BACKUP_PATH logs/backend` (wartości z `.env.production`).
+3. Utwórz katalogi danych: `(source .env.production && mkdir -p "$DATA_PATH/postgres" "$BACKUP_PATH" logs)`.
 4. Zaloguj się do GHCR: `echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_USER --password-stdin`.
 5. `docker compose -f docker-compose.prod.yml --env-file .env.production up -d`.
    Aplikacja jest dostępna na `http://<pi>:8020` (port zmienisz przez `FRONTEND_PORT`). Backend nie publikuje portu:
@@ -26,7 +26,7 @@ Obrazy budowane są przez GitHub Actions (`.github/workflows/deploy-production.y
 # w .env.production ustaw VERSION=vX.Y.Z (lub main)
 docker compose -f docker-compose.prod.yml --env-file .env.production pull
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d
-docker compose -f docker-compose.prod.yml logs -f backend   # Flyway zastosuje migracje przy starcie
+docker compose -f docker-compose.prod.yml --env-file .env.production logs -f --tail 100 backend   # Flyway zastosuje migracje przy starcie
 ```
 
 ## Ręczne zbudowanie obrazów (bez CI)
@@ -36,6 +36,16 @@ docker build -t ghcr.io/$GITHUB_USER/kma-library/backend:main ./backend
 docker build -t ghcr.io/$GITHUB_USER/kma-library/frontend:main ./frontend
 docker push ghcr.io/$GITHUB_USER/kma-library/backend:main
 docker push ghcr.io/$GITHUB_USER/kma-library/frontend:main
+```
+
+## Logi
+
+Backend i nginx logują na stdout, a Docker trzyma to w plikach `json-file` z rotacją (3 × 10 MB na kontener).
+Logi giną przy odtworzeniu kontenera (`up -d` po zmianie konfiguracji lub wersji).
+
+```bash
+docker logs -f --tail 100 kmalibrary-backend-prod
+docker logs -f --tail 100 kmalibrary-frontend-prod
 ```
 
 ## Baza danych

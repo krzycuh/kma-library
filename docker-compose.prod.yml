@@ -65,8 +65,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    volumes:
-      - ./logs/backend:/app/logs
 
   # Frontend Application: nginx serving the SPA and proxying /api to the backend
   frontend:
