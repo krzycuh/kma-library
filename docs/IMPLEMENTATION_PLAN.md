@@ -7,7 +7,7 @@ Plan pracy nad aplikacją do zarządzania przeczytanymi książkami i domową bi
 - Backend: Kotlin 1.9 + Spring Boot 3.3 (Web, Security, Validation, Data JPA, Actuator) + JWT (jjwt) + Flyway + PostgreSQL 16 + springdoc-openapi + bucket4j, ktlint, JUnit 5 + MockK + Kotest + Testcontainers + ArchUnit. Gradle Kotlin DSL, JDK 21.
 - Infra: Docker (multi-stage + `Dockerfile.prebuilt`), docker-compose `localhost` i `prod`, nginx reverse proxy, GitHub Actions (CI backend/frontend + build i push obrazów do GHCR), produkcja na Raspberry Pi.
 
-**Status:** fazy 0–7 zrealizowane (patrz `docs/PHASE_0-5_SUMMARY.md`, `docs/PHASE_6_SUMMARY.md`, `docs/PHASE_7_SUMMARY.md`). Każda faza kończy się działającą, wdrażalną wersją.
+**Status:** fazy 0–8 zrealizowane (patrz `docs/PHASE_0-5_SUMMARY.md`, `docs/PHASE_6_SUMMARY.md`, `docs/PHASE_7_SUMMARY.md`, `docs/PHASE_8_SUMMARY.md`). Każda faza kończy się działającą, wdrażalną wersją.
 
 ---
 

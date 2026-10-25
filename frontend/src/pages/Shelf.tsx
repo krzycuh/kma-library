@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { librariesApi } from '../api/libraries';
 import { PageHeader } from '../components/PageHeader';
+import { LibrarySwitcher } from '../components/LibrarySwitcher';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { Pagination } from '../components/Pagination';
 import { BookCover } from '../components/BookCover';
 import { ShelfItemStatusBadge } from '../components/ShelfItemStatusBadge';
-import { useDefaultLibrary } from '../hooks/useLibraries';
+import { useCurrentLibrary } from '../hooks/useLibraries';
 import { t } from '../i18n';
 import type { ShelfItemStatus } from '../types/shelf';
 import { formatAuthors, formatDate } from '../utils/format';
@@ -29,7 +30,7 @@ const PAGE_SIZE = 20;
  */
 export function Shelf() {
   const navigate = useNavigate();
-  const { library, isLoading: libraryLoading, isError: libraryError } = useDefaultLibrary();
+  const { library, isLoading: libraryLoading, isError: libraryError } = useCurrentLibrary();
   const [tab, setTab] = useState<Tab>('ALL');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -61,14 +62,26 @@ export function Shelf() {
         title={t.shelf.title}
         description={t.shelf.subtitle}
         actions={
-          <Link
-            to="/shelf/new"
-            className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            + {t.shelf.add}
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              to="/shelf/members"
+              className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              <span aria-hidden="true">👥</span>&nbsp;{t.members.link}
+            </Link>
+            <Link
+              to="/shelf/new"
+              className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              + {t.shelf.add}
+            </Link>
+          </div>
         }
       />
+
+      <div className="mb-4">
+        <LibrarySwitcher />
+      </div>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="inline-flex rounded-lg bg-gray-100 p-1" role="tablist">

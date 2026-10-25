@@ -6,7 +6,7 @@ import { adminBooksApi, booksApi } from '../api/books';
 import { readingEntriesApi } from '../api/readingEntries';
 import { librariesApi } from '../api/libraries';
 import { useAuth } from '../hooks/useAuth';
-import { useDefaultLibrary } from '../hooks/useLibraries';
+import { useCurrentLibrary } from '../hooks/useLibraries';
 import { useToast } from '../hooks/useToast';
 import { UserRole } from '../types/auth';
 import type { Book } from '../types/book';
@@ -236,7 +236,7 @@ function MergeBookSection({ book }: { book: Book }) {
 export function BookDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { library } = useDefaultLibrary();
+  const { library } = useCurrentLibrary();
   const [editOpen, setEditOpen] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
 

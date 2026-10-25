@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { booksApi } from '../api/books';
 import { librariesApi } from '../api/libraries';
 import { PageHeader } from '../components/PageHeader';
+import { LibrarySwitcher } from '../components/LibrarySwitcher';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { EmptyState } from '../components/EmptyState';
 import { BookPicker } from '../components/BookPicker';
@@ -14,7 +15,7 @@ import {
   validateBookPicker,
   type BookPickerValue,
 } from '../utils/bookPicker';
-import { useDefaultLibrary } from '../hooks/useLibraries';
+import { useCurrentLibrary } from '../hooks/useLibraries';
 import { useToast } from '../hooks/useToast';
 import { t } from '../i18n';
 import { getApiErrorMessage } from '../utils/apiError';
@@ -31,7 +32,7 @@ export function ShelfItemForm() {
   const toast = useToast();
   const [searchParams] = useSearchParams();
   const prefillBookId = searchParams.get('bookId');
-  const { library, isLoading: libraryLoading } = useDefaultLibrary();
+  const { library, isLoading: libraryLoading } = useCurrentLibrary();
 
   const [picker, setPicker] = useState<BookPickerValue>(emptyBookPickerValue);
   const [acquiredOn, setAcquiredOn] = useState('');
@@ -88,6 +89,7 @@ export function ShelfItemForm() {
     <div className="mx-auto max-w-2xl">
       <PageHeader title={t.shelf.addTitle} backTo="/shelf" backLabel={t.shelf.title} />
       <form onSubmit={submit} className="space-y-5 rounded-lg bg-white p-4 shadow-sm sm:p-6">
+        <LibrarySwitcher />
         <BookPicker value={picker} onChange={setPicker} />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -27,9 +27,14 @@ class GetDashboard(
         val year = Year.now().value
         val summary = getReadingSummary.execute(userId, year)
         val recent = listReadingEntries.execute(ListReadingEntriesQuery(readerId = userId, page = 0, pageSize = 5)).items
-        val library = listMyLibraries.execute(userId).firstOrNull()
-        val loans = library?.let { listActiveLoans.execute(userId, it.id) } ?: emptyList()
-        val onShelf = library?.let { shelfItemRepository.countByLibraryAndStatus(it.id, ShelfItemStatus.ON_SHELF) } ?: 0L
+        // Counts cover every library the user belongs to (own and family)
+        val libraries = listMyLibraries.execute(userId)
+        val library = libraries.firstOrNull { it.ownerId == userId } ?: libraries.firstOrNull()
+        val loans =
+            libraries
+                .flatMap { listActiveLoans.execute(userId, it.id) }
+                .sortedWith(compareBy({ it.activeLoan?.lentOn }, { it.book.title }))
+        val onShelf = libraries.sumOf { shelfItemRepository.countByLibraryAndStatus(it.id, ShelfItemStatus.ON_SHELF) }
 
         return DashboardDto(
             year = year,

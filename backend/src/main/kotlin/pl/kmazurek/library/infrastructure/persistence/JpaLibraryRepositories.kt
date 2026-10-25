@@ -24,4 +24,6 @@ interface JpaLibraryRepository : JpaRepository<LibraryJpaEntity, UUID> {
 }
 
 @Repository
-interface JpaLibraryMemberRepository : JpaRepository<LibraryMemberJpaEntity, LibraryMemberKey>
+interface JpaLibraryMemberRepository : JpaRepository<LibraryMemberJpaEntity, LibraryMemberKey> {
+    fun findAllByKeyLibraryIdOrderByCreatedAtAsc(libraryId: UUID): List<LibraryMemberJpaEntity>
+}
