@@ -1,0 +1,71 @@
+name: ntfy notification
+description: >
+  Sends a push notification to an ntfy server (e.g. self-hosted behind Cloudflare Tunnel).
+  Skips quietly when the server is not configured – e.g. for pull requests from forks, which get no secrets.
+  Never fails the calling job.
+
+inputs:
+  url:
+    description: Base URL of the ntfy server, e.g. https://ntfy.example.com (pass secrets.NTFY_URL)
+    required: false
+  topic:
+    description: Topic to publish to (pass secrets.NTFY_TOPIC)
+    required: false
+  token:
+    description: Access token with write access to the topic (pass secrets.NTFY_TOKEN; optional)
+    required: false
+  title:
+    description: Notification title
+    required: true
+  message:
+    description: Notification body
+    required: true
+  tags:
+    description: Comma-separated ntfy tags / emoji shortcodes, e.g. white_check_mark
+    required: false
+    default: ''
+  priority:
+    description: 1 (min) – 5 (max)
+    required: false
+    default: '3'
+  click:
+    description: URL opened when the notification is tapped
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Publish to ntfy
+      shell: bash
+      env:
+        NTFY_URL: ${{ inputs.url }}
+        NTFY_TOPIC: ${{ inputs.topic }}
+        NTFY_TOKEN: ${{ inputs.token }}
+        TITLE: ${{ inputs.title }}
+        MESSAGE: ${{ inputs.message }}
+        TAGS: ${{ inputs.tags }}
+        PRIORITY: ${{ inputs.priority }}
+        CLICK: ${{ inputs.click }}
+      run: |
+        if [ -z "$NTFY_URL" ] || [ -z "$NTFY_TOPIC" ]; then
+          echo "ntfy is not configured (NTFY_URL / NTFY_TOPIC secrets missing) - skipping notification"
+          exit 0
+        fi
+        # JSON publishing keeps Polish characters intact (HTTP headers are Latin-1 only)
+        payload=$(jq -n \
+          --arg topic "$NTFY_TOPIC" --arg title "$TITLE" --arg message "$MESSAGE" \
+          --arg tags "$TAGS" --arg click "$CLICK" --argjson priority "$PRIORITY" \
+          '{topic: $topic, title: $title, message: $message, priority: $priority,
+            tags: ($tags | split(",") | map(select(length > 0)))}
+           + (if $click == "" then {} else {click: $click} end)')
+        auth=()
+        if [ -n "$NTFY_TOKEN" ]; then auth=(-H "Authorization: Bearer $NTFY_TOKEN"); fi
+        # The response echoes the topic, so it is not printed; only the status code is
+        status=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "${auth[@]}" \
+          -H "Content-Type: application/json" -d "$payload" "${NTFY_URL%/}") || status="no response"
+        if [ "$status" = "200" ]; then
+          echo "Notification sent"
+        else
+          echo "::warning::ntfy notification failed (HTTP $status) - check NTFY_URL, NTFY_TOKEN and Cloudflare Access/WAF rules"
+        fi
