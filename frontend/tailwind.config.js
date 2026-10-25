@@ -1,12 +1,36 @@
 /** @type {import('tailwindcss').Config} */
+
+// Theme-aware palette: every color family the app uses reads its shades from CSS variables
+// (src/theme.css) – the light values are Tailwind's defaults, `html.dark` swaps in the neon theme.
+const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+const themed = (family) =>
+  Object.fromEntries(SHADES.map((shade) => [shade, `rgb(var(--c-${family}-${shade}) / <alpha-value>)`]));
+
 export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        white: 'rgb(var(--c-white) / <alpha-value>)',
+        gray: themed('gray'),
+        blue: themed('blue'),
+        red: themed('red'),
+        green: themed('green'),
+        amber: themed('amber'),
+        yellow: themed('yellow'),
+        // Rating stars: amber in the light theme, pink in neon (amber is "lent" there)
+        star: 'rgb(var(--c-star) / <alpha-value>)',
+        // Camera scanner: always black and white, whatever the theme
+        scanner: {
+          bg: '#000000',
+          fg: '#ffffff',
+          muted: '#e5e7eb',
+          ink: '#111827',
+        },
         primary: {
           50: '#f0fdf4',
           100: '#dcfce7',

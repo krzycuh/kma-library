@@ -372,6 +372,17 @@ export const pl = {
     roleAdmin: 'Admin',
     roleUser: 'Użytkownik',
   },
+  theme: {
+    label: 'Motyw',
+    options: { system: 'Systemowy', light: 'Jasny', dark: 'Ciemny' } as Record<string, string>,
+    resolved: { light: 'jasny', dark: 'ciemny' } as Record<string, string>,
+    systemHint: (current: string) => `Zgodnie z ustawieniem urządzenia – teraz ${current}.`,
+    fixedHint: {
+      light: 'Zawsze jasny, niezależnie od urządzenia.',
+      dark: 'Zawsze ciemny (neon), niezależnie od urządzenia.',
+    } as Record<string, string>,
+    profileSection: 'Wygląd',
+  },
   version: {
     frontend: 'Frontend',
     backend: 'Backend',

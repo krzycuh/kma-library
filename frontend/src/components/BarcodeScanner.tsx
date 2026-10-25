@@ -200,13 +200,13 @@ export function BarcodeScanner({ open, onClose, onDetected }: BarcodeScannerProp
 
   return (
     <Dialog open={open} onClose={onClose} className="relative z-50">
-      <DialogPanel className="fixed inset-0 flex flex-col bg-black text-white">
+      <DialogPanel className="fixed inset-0 flex flex-col bg-scanner-bg text-scanner-fg">
         <div className="flex items-center justify-between px-4 py-3">
           <DialogTitle className="text-base font-semibold">{t.scanner.title}</DialogTitle>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
+            className="rounded-md px-3 py-2 text-sm font-medium text-scanner-fg hover:bg-scanner-fg/10 focus:outline-none focus:ring-2 focus:ring-scanner-fg"
           >
             {t.scanner.close}
           </button>
@@ -222,22 +222,22 @@ export function BarcodeScanner({ open, onClose, onDetected }: BarcodeScannerProp
           />
           {status === 'scanning' && (
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
-              <div className="h-32 w-4/5 max-w-sm rounded-lg border-4 border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
+              <div className="h-32 w-4/5 max-w-sm rounded-lg border-4 border-scanner-fg/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
             </div>
           )}
           {status === 'starting' && (
-            <p className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-gray-200">
+            <p className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-scanner-muted">
               {t.scanner.starting}
             </p>
           )}
           {status === 'error' && error && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center" role="alert">
-              <p className="text-sm text-gray-100">{errorMessages[error]}</p>
+              <p className="text-sm text-scanner-muted">{errorMessages[error]}</p>
               {error !== 'insecure' && (
                 <button
                   type="button"
                   onClick={() => setAttempt((n) => n + 1)}
-                  className="rounded-lg border border-white/70 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
+                  className="rounded-lg border border-scanner-fg/70 px-4 py-2 text-sm font-semibold text-scanner-fg hover:bg-scanner-fg/10 focus:outline-none focus:ring-2 focus:ring-scanner-fg"
                 >
                   {t.scanner.retry}
                 </button>
@@ -247,7 +247,7 @@ export function BarcodeScanner({ open, onClose, onDetected }: BarcodeScannerProp
         </div>
 
         <div className="space-y-3 px-4 pb-6 pt-3">
-          <p className="min-h-[2.5rem] text-center text-sm text-gray-200" aria-live="polite">
+          <p className="min-h-[2.5rem] text-center text-sm text-scanner-muted" aria-live="polite">
             {photoBusy ? t.scanner.readingPhoto : hint ?? (status === 'scanning' ? t.scanner.hint : '')}
           </p>
           <div className="flex gap-2">
@@ -256,12 +256,12 @@ export function BarcodeScanner({ open, onClose, onDetected }: BarcodeScannerProp
                 type="button"
                 onClick={toggleTorch}
                 aria-pressed={torchOn}
-                className="flex-1 rounded-lg border border-white/70 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
+                className="flex-1 rounded-lg border border-scanner-fg/70 px-4 py-3 text-sm font-semibold text-scanner-fg hover:bg-scanner-fg/10 focus:outline-none focus:ring-2 focus:ring-scanner-fg"
               >
                 {torchOn ? t.scanner.torchOff : t.scanner.torchOn}
               </button>
             )}
-            <label className="flex flex-1 cursor-pointer items-center justify-center rounded-lg bg-white px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-white">
+            <label className="flex flex-1 cursor-pointer items-center justify-center rounded-lg bg-scanner-fg px-4 py-3 text-sm font-semibold text-scanner-ink hover:bg-scanner-muted focus-within:ring-2 focus-within:ring-scanner-fg">
               {t.scanner.takePhoto}
               <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={onPhoto} disabled={photoBusy} />
             </label>

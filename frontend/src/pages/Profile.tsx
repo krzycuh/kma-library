@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { usersApi } from '../api/users';
 import { PageHeader } from '../components/PageHeader';
 import { t } from '../i18n';
+import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { getApiErrorMessage } from '../utils/apiError';
 
 /**
@@ -120,6 +121,13 @@ export const Profile: React.FC = () => {
               <p className="text-sm font-medium text-red-800">{errorMessage}</p>
             </div>
           )}
+
+          <div className="mb-8">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">{t.theme.profileSection}</h2>
+            <div className="max-w-sm">
+              <ThemeSwitcher />
+            </div>
+          </div>
 
           <div className="mb-8">
             <h2 className="text-lg font-medium text-gray-900 mb-4">{t.profile.profileSection}</h2>
