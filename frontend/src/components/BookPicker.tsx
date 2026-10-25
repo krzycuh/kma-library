@@ -7,6 +7,7 @@ import { bookPickerValueFromBook, emptyBookPickerValue, type BookPickerValue } f
 import { formatAuthors } from '../utils/format';
 import { toIsbn13 } from '../utils/isbn';
 import { isbnLookupErrorMessage } from '../utils/isbnLookup';
+import { BarcodeScanner } from './BarcodeScanner';
 
 interface BookPickerProps {
   value: BookPickerValue;
@@ -27,6 +28,7 @@ export function BookPicker({ value, onChange, disabled = false, showIsbn = true 
   const [open, setOpen] = useState(false);
   const [debounced, setDebounced] = useState('');
   const [isbnError, setIsbnError] = useState<string | null>(null);
+  const [scanOpen, setScanOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -40,8 +42,8 @@ export function BookPicker({ value, onChange, disabled = false, showIsbn = true 
     onError: (err) => setIsbnError(isbnLookupErrorMessage(err)),
   });
 
-  const fetchByIsbn = () => {
-    const isbn = toIsbn13(value.isbn);
+  const fetchByIsbn = (raw: string = value.isbn) => {
+    const isbn = toIsbn13(raw);
     if (!isbn) {
       setIsbnError(t.isbn.invalid);
       return;
@@ -184,13 +186,33 @@ export function BookPicker({ value, onChange, disabled = false, showIsbn = true 
                 />
                 <button
                   type="button"
-                  onClick={fetchByIsbn}
+                  onClick={() => setScanOpen(true)}
+                  disabled={disabled || isbnMutation.isPending}
+                  aria-label={t.scanner.openLabel}
+                  title={t.scanner.openLabel}
+                  className="flex-shrink-0 rounded-lg border border-blue-600 bg-white px-3 py-2 text-base hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span aria-hidden="true">📷</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fetchByIsbn()}
                   disabled={disabled || isbnMutation.isPending || !value.isbn.trim()}
                   className="flex-shrink-0 rounded-lg border border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isbnMutation.isPending ? t.isbn.fetching : t.isbn.fetch}
                 </button>
               </div>
+              <BarcodeScanner
+                open={scanOpen}
+                onClose={() => setScanOpen(false)}
+                onDetected={(isbn) => {
+                  setScanOpen(false);
+                  setIsbnError(null);
+                  onChange({ ...value, isbn });
+                  fetchByIsbn(isbn);
+                }}
+              />
               {isbnError && (
                 <p id="book-isbn-error" className="mt-1 text-sm text-red-700" role="alert">
                   {isbnError}
