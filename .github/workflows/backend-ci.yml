@@ -78,3 +78,30 @@ jobs:
           tags: kma-library-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  notify-failure:
+    name: Notify on failure
+    needs: [lint-and-test, build-docker]
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout notification action
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions
+
+      - name: Send ntfy notification
+        uses: ./.github/actions/ntfy
+        with:
+          url: ${{ secrets.NTFY_URL }}
+          topic: ${{ secrets.NTFY_TOPIC }}
+          token: ${{ secrets.NTFY_TOKEN }}
+          title: 'KMA Library: Backend CI nie przeszło'
+          message: >-
+            ${{ github.event_name == 'pull_request' && format('PR #{0}: {1}', github.event.pull_request.number, github.event.pull_request.title) || format('{0} @ {1}', github.ref_name, github.sha) }}
+          tags: x
+          priority: '4'
+          click: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

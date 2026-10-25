@@ -118,18 +118,34 @@ jobs:
             BUILD_DATE=${{ steps.meta-frontend.outputs.created }}
             VERSION=${{ github.ref_name }}
 
-  post-deploy:
-    name: Post-Deployment Tasks
+  notify:
+    name: Notify
     needs: build-and-push
+    if: always()
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-      - name: Send deployment notification
-        run: |
-          echo "Deployment completed for version ${{ github.ref_name }}"
-          # Add Slack/Discord notification here if needed
+      - name: Checkout notification action
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions
 
-      - name: Update documentation
-        run: |
-          echo "Update deployment documentation with version ${{ github.ref_name }}"
-          # Add documentation update logic if needed
+      - name: Send ntfy notification
+        uses: ./.github/actions/ntfy
+        with:
+          url: ${{ secrets.NTFY_URL }}
+          topic: ${{ secrets.NTFY_TOPIC }}
+          token: ${{ secrets.NTFY_TOKEN }}
+          title: >-
+            ${{ needs.build-and-push.result == 'success' && 'KMA Library: obrazy gotowe' || 'KMA Library: build nie powiódł się' }}
+          message: >-
+            ${{ needs.build-and-push.result == 'success' && 'Obrazy w GHCR' || format('Wynik: {0}', needs.build-and-push.result) }}
+            – ${{ github.ref_name }} (${{ github.sha }}).
+            ${{ needs.build-and-push.result == 'success' && 'Na Pi: docker compose pull, potem up -d.' || '' }}
+          tags: >-
+            ${{ needs.build-and-push.result == 'success' && 'white_check_mark,package' || 'x,package' }}
+          priority: >-
+            ${{ needs.build-and-push.result == 'success' && '3' || '4' }}
+          click: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
