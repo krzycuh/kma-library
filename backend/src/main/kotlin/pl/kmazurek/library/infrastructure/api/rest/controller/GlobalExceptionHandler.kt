@@ -9,11 +9,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import pl.kmazurek.library.application.service.BookMetadataUnavailableException
 import pl.kmazurek.library.application.usecase.auth.AccountDisabledException
 import pl.kmazurek.library.application.usecase.auth.EmailAlreadyExistsException
 import pl.kmazurek.library.application.usecase.auth.InvalidCredentialsException
 import pl.kmazurek.library.application.usecase.auth.InvalidRefreshTokenException
 import pl.kmazurek.library.application.usecase.auth.RegistrationDisabledException
+import pl.kmazurek.library.application.usecase.catalog.IncompleteBookMetadataException
 import pl.kmazurek.library.application.usecase.common.ConflictException
 import pl.kmazurek.library.application.usecase.common.ForbiddenException
 import pl.kmazurek.library.application.usecase.common.NotFoundException
@@ -60,7 +62,14 @@ class GlobalExceptionHandler(
     @ExceptionHandler(ConflictException::class)
     fun handleConflict(ex: ConflictException): ResponseEntity<ErrorResponse> = buildErrorResponse(HttpStatus.CONFLICT, "Conflict", ex)
 
-    @ExceptionHandler(InvalidPasswordException::class, CannotModifySelfException::class)
+    @ExceptionHandler(BookMetadataUnavailableException::class)
+    fun handleCatalogUnavailable(ex: BookMetadataUnavailableException): ResponseEntity<ErrorResponse> {
+        // An outage of a third-party service is not our error: no stack trace
+        logger.warn("HTTP 503: {}", ex.message)
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ErrorResponse("External book catalog is unavailable"))
+    }
+
+    @ExceptionHandler(InvalidPasswordException::class, CannotModifySelfException::class, IncompleteBookMetadataException::class)
     fun handleBadRequest(ex: Exception): ResponseEntity<ErrorResponse> = buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid request", ex)
 
     @ExceptionHandler(MethodArgumentNotValidException::class)

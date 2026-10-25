@@ -68,6 +68,7 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:5.8.1")
     testImplementation("io.kotest:kotest-assertions-core:5.8.1")
     testImplementation("com.tngtech.archunit:archunit-junit5:1.2.1")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 tasks.withType<KotlinCompile> {

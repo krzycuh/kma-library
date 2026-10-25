@@ -6,3 +6,5 @@ import pl.kmazurek.library.application.usecase.common.NotFoundException
 class BookNotFoundException(message: String) : NotFoundException(message)
 
 class BookEditForbiddenException(message: String) : ForbiddenException(message)
+
+class IncompleteBookMetadataException(message: String) : RuntimeException(message)

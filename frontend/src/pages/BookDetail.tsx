@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { booksApi } from '../api/books';
+import { adminBooksApi, booksApi } from '../api/books';
 import { readingEntriesApi } from '../api/readingEntries';
 import { librariesApi } from '../api/libraries';
 import { useAuth } from '../hooks/useAuth';
@@ -17,6 +17,7 @@ import { RatingStars } from '../components/RatingStars';
 import { ShelfItemStatusBadge } from '../components/ShelfItemStatusBadge';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorMessage } from '../components/ErrorMessage';
+import { ConfirmationModal } from '../components/ConfirmationModal';
 import { formatAuthors, formatDate, formatFinishedPeriod } from '../utils/format';
 import { getApiErrorMessage } from '../utils/apiError';
 import { isValidIsbn } from '../utils/isbn';
@@ -132,6 +133,104 @@ function BookEditForm({ book }: { book: Book }) {
 }
 
 /**
+ * Admin: merge this (duplicate) book into another catalog entry, then go to the surviving one.
+ */
+function MergeBookSection({ book }: { book: Book }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const toast = useToast();
+  const [search, setSearch] = useState('');
+  const [debounced, setDebounced] = useState('');
+  const [target, setTarget] = useState<Book | null>(null);
+
+  useEffect(() => {
+    const handle = setTimeout(() => setDebounced(search.trim()), 250);
+    return () => clearTimeout(handle);
+  }, [search]);
+
+  const candidatesQuery = useQuery({
+    queryKey: ['books', 'search', debounced],
+    queryFn: () => booksApi.search(debounced, 8),
+    enabled: debounced.length >= 2,
+    staleTime: 30_000,
+  });
+  const candidates = (candidatesQuery.data ?? []).filter((candidate) => candidate.id !== book.id);
+
+  const mutation = useMutation({
+    mutationFn: (targetBook: Book) => adminBooksApi.mergeInto(book.id, targetBook.id),
+    onSuccess: (result) => {
+      toast.success(t.book.merged(result.movedReadingEntries, result.movedShelfItems));
+      queryClient.removeQueries({ queryKey: ['book', book.id] });
+      queryClient.invalidateQueries({ queryKey: ['book', result.target.id] });
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+      queryClient.invalidateQueries({ queryKey: ['reading-entries'] });
+      queryClient.invalidateQueries({ queryKey: ['shelf-items'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      setTarget(null);
+      navigate(`/books/${result.target.id}`, { replace: true });
+    },
+    onError: (err) => toast.error(getApiErrorMessage(err)),
+  });
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-gray-600">{t.book.mergeHint}</p>
+      <div>
+        <label htmlFor="merge-search" className="block text-sm font-medium text-gray-700">
+          {t.book.mergeSearch}
+        </label>
+        <input
+          id="merge-search"
+          type="search"
+          autoComplete="off"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t.book.mergeSearchPlaceholder}
+          className={inputClasses}
+        />
+      </div>
+      {debounced.length >= 2 && candidatesQuery.isSuccess && candidates.length === 0 && (
+        <p className="text-sm text-gray-500">{t.book.mergeNoResults}</p>
+      )}
+      {candidates.length > 0 && (
+        <ul className="divide-y divide-gray-100 rounded-md border border-gray-200">
+          {candidates.map((candidate) => (
+            <li key={candidate.id} className="flex items-center justify-between gap-3 px-3 py-2">
+              <div className="min-w-0 text-sm">
+                <p className="truncate font-medium text-gray-900">{candidate.title}</p>
+                <p className="truncate text-gray-600">
+                  {formatAuthors(candidate.authors)}
+                  {candidate.isbn ? ` · ISBN ${candidate.isbn}` : ''}
+                  {candidate.publishedYear ? ` · ${candidate.publishedYear}` : ''}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTarget(candidate)}
+                className="flex-shrink-0 rounded-md border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                {t.book.mergeInto}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <ConfirmationModal
+        isOpen={target !== null}
+        onClose={() => setTarget(null)}
+        onConfirm={() => target && mutation.mutate(target)}
+        title={t.book.mergeConfirmTitle}
+        description={target ? t.book.mergeConfirmText(book.title, target.title) : ''}
+        confirmText={t.book.mergeInto}
+        cancelText={t.common.cancel}
+        variant="danger"
+        isLoading={mutation.isPending}
+      />
+    </div>
+  );
+}
+
+/**
  * Catalog book page: metadata, my reading entries, my copies on the shelf.
  */
 export function BookDetail() {
@@ -139,6 +238,7 @@ export function BookDetail() {
   const { user } = useAuth();
   const { library } = useDefaultLibrary();
   const [editOpen, setEditOpen] = useState(false);
+  const [mergeOpen, setMergeOpen] = useState(false);
 
   const bookQuery = useQuery({
     queryKey: ['book', id],
@@ -164,7 +264,8 @@ export function BookDetail() {
   }
 
   const book = bookQuery.data;
-  const canEdit = user?.role === UserRole.ADMIN || (user?.id != null && user.id === book.createdByUserId);
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const canEdit = isAdmin || (user?.id != null && user.id === book.createdByUserId);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -215,6 +316,23 @@ export function BookDetail() {
             {editOpen && (
               <div className="mt-3">
                 <BookEditForm book={book} />
+              </div>
+            )}
+          </div>
+        )}
+        {isAdmin && (
+          <div className="mt-4 border-t border-gray-100 pt-4">
+            <button
+              type="button"
+              onClick={() => setMergeOpen((open) => !open)}
+              aria-expanded={mergeOpen}
+              className="text-sm font-medium text-red-700 hover:text-red-800"
+            >
+              {mergeOpen ? '▾' : '▸'} {t.book.mergeTitle}
+            </button>
+            {mergeOpen && (
+              <div className="mt-3">
+                <MergeBookSection key={book.id} book={book} />
               </div>
             )}
           </div>

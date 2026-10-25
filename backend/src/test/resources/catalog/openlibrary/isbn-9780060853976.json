@@ -1,0 +1,19 @@
+{
+  "ISBN:9780060853976": {
+    "url": "https://openlibrary.org/books/OL7928212M/Good_Omens",
+    "key": "/books/OL7928212M",
+    "title": "Good Omens",
+    "subtitle": "The Nice and Accurate Prophecies of Agnes Nutter, Witch",
+    "authors": [
+      { "url": "https://openlibrary.org/authors/OL25712A/Terry_Pratchett", "name": "Terry Pratchett" },
+      { "url": "https://openlibrary.org/authors/OL19981A/Neil_Gaiman", "name": "Neil Gaiman" }
+    ],
+    "identifiers": {
+      "isbn_10": ["0060853972"],
+      "isbn_13": ["9780060853976"],
+      "openlibrary": ["OL7928212M"]
+    },
+    "publishers": [{ "name": "HarperTorch" }],
+    "publish_date": "2006"
+  }
+}

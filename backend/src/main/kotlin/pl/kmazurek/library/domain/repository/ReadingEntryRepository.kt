@@ -40,4 +40,12 @@ interface ReadingEntryRepository {
     fun save(entry: ReadingEntry): ReadingEntry
 
     fun deleteById(id: ReadingEntryId)
+
+    /**
+     * Points every entry of one catalog book at another. Returns the number of moved entries.
+     */
+    fun reassignBook(
+        from: BookId,
+        to: BookId,
+    ): Int
 }

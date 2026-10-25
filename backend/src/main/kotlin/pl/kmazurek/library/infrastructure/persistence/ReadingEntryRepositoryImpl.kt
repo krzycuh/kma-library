@@ -2,6 +2,8 @@ package pl.kmazurek.library.infrastructure.persistence
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import pl.kmazurek.library.domain.model.catalog.BookId
 import pl.kmazurek.library.domain.model.reading.ReadingEntry
 import pl.kmazurek.library.domain.model.reading.ReadingEntryId
 import pl.kmazurek.library.domain.model.user.UserId
@@ -48,4 +50,10 @@ class ReadingEntryRepositoryImpl(
     override fun save(entry: ReadingEntry): ReadingEntry = ReadingEntryMapper.toDomain(jpaRepository.save(ReadingEntryMapper.toJpa(entry)))
 
     override fun deleteById(id: ReadingEntryId) = jpaRepository.deleteById(id.value)
+
+    @Transactional
+    override fun reassignBook(
+        from: BookId,
+        to: BookId,
+    ): Int = jpaRepository.reassignBook(from.value, to.value)
 }

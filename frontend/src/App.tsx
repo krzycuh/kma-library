@@ -21,6 +21,7 @@ const Shelf = lazy(() => import('./pages/Shelf').then((m) => ({ default: m.Shelf
 const ShelfItemForm = lazy(() => import('./pages/ShelfItemForm').then((m) => ({ default: m.ShelfItemForm })));
 const ShelfItemDetail = lazy(() => import('./pages/ShelfItemDetail').then((m) => ({ default: m.ShelfItemDetail })));
 const Loans = lazy(() => import('./pages/Loans').then((m) => ({ default: m.Loans })));
+const IsbnLookup = lazy(() => import('./pages/IsbnLookup').then((m) => ({ default: m.IsbnLookup })));
 const BookDetail = lazy(() => import('./pages/BookDetail').then((m) => ({ default: m.BookDetail })));
 const AdminUsers = lazy(() => import('./pages/admin/Users').then((m) => ({ default: m.AdminUsers })));
 
@@ -67,6 +68,7 @@ function App() {
                   <Route path="/shelf/new" element={<ShelfItemForm />} />
                   <Route path="/shelf/:id" element={<ShelfItemDetail />} />
                   <Route path="/loans" element={<Loans />} />
+                  <Route path="/isbn" element={<IsbnLookup />} />
                   <Route path="/books/:id" element={<BookDetail />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route

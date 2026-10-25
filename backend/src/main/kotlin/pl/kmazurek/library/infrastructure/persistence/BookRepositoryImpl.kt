@@ -2,6 +2,7 @@ package pl.kmazurek.library.infrastructure.persistence
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import pl.kmazurek.library.domain.model.catalog.Book
 import pl.kmazurek.library.domain.model.catalog.BookId
 import pl.kmazurek.library.domain.model.catalog.Isbn
@@ -35,4 +36,9 @@ class BookRepositoryImpl(
     }
 
     override fun save(book: Book): Book = BookMapper.toDomain(jpaRepository.save(BookMapper.toJpa(book)))
+
+    @Transactional
+    override fun deleteById(id: BookId) {
+        jpaRepository.deleteNow(id.value)
+    }
 }
