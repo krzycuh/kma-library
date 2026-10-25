@@ -22,4 +22,11 @@ interface LibraryRepository {
     ): LibraryRole?
 
     fun addMember(member: LibraryMember)
+
+    fun findMembers(libraryId: LibraryId): List<LibraryMember>
+
+    fun removeMember(
+        libraryId: LibraryId,
+        userId: UserId,
+    )
 }

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import pl.kmazurek.library.domain.model.catalog.Book
 import pl.kmazurek.library.domain.model.shelf.Library
+import pl.kmazurek.library.domain.model.shelf.LibraryRole
 import pl.kmazurek.library.domain.model.shelf.Loan
 import pl.kmazurek.library.domain.model.shelf.ShelfItem
 import pl.kmazurek.library.domain.model.shelf.ShelfItemStatus
@@ -17,17 +18,44 @@ data class LibraryDto(
     val name: String,
     val ownerId: String,
     val createdAt: LocalDateTime,
+    /** Role of the current user in this library */
+    val myRole: LibraryRole,
+    val memberCount: Int,
 ) {
     companion object {
-        fun fromDomain(library: Library) =
-            LibraryDto(
-                id = library.id.toString(),
-                name = library.name,
-                ownerId = library.ownerId.toString(),
-                createdAt = library.createdAt,
-            )
+        fun fromDomain(
+            library: Library,
+            myRole: LibraryRole,
+            memberCount: Int,
+        ) = LibraryDto(
+            id = library.id.toString(),
+            name = library.name,
+            ownerId = library.ownerId.toString(),
+            createdAt = library.createdAt,
+            myRole = myRole,
+            memberCount = memberCount,
+        )
     }
 }
+
+data class LibraryMemberDto(
+    val userId: String,
+    val name: String,
+    val email: String,
+    val role: LibraryRole,
+)
+
+data class InviteLibraryMemberRequest(
+    @field:NotBlank(message = "E-mail is required")
+    @field:Size(max = 255, message = "E-mail cannot exceed 255 characters")
+    val email: String,
+)
+
+data class RenameLibraryRequest(
+    @field:NotBlank(message = "Name is required")
+    @field:Size(max = 255, message = "Name cannot exceed 255 characters")
+    val name: String,
+)
 
 data class LoanDto(
     val id: String,

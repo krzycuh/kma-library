@@ -32,4 +32,12 @@ class LibraryRepositoryImpl(
     override fun addMember(member: LibraryMember) {
         memberRepository.save(LibraryMapper.memberToJpa(member))
     }
+
+    override fun findMembers(libraryId: LibraryId): List<LibraryMember> =
+        memberRepository.findAllByKeyLibraryIdOrderByCreatedAtAsc(libraryId.value).map { LibraryMapper.memberToDomain(it) }
+
+    override fun removeMember(
+        libraryId: LibraryId,
+        userId: UserId,
+    ) = memberRepository.deleteById(LibraryMemberKey(libraryId.value, userId.value))
 }

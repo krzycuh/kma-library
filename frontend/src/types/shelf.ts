@@ -1,10 +1,22 @@
 import type { Book, BookReference } from './book';
 
+export type LibraryRole = 'OWNER' | 'MEMBER';
+
 export interface Library {
   id: string;
   name: string;
   ownerId: string;
   createdAt: string;
+  /** Role of the current user in this library */
+  myRole: LibraryRole;
+  memberCount: number;
+}
+
+export interface LibraryMember {
+  userId: string;
+  name: string;
+  email: string;
+  role: LibraryRole;
 }
 
 export type ShelfItemStatus = 'ON_SHELF' | 'LENT' | 'LOST' | 'GIVEN_AWAY';

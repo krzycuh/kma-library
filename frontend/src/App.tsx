@@ -19,6 +19,7 @@ const ReadingList = lazy(() => import('./pages/ReadingList').then((m) => ({ defa
 const ReadingEntryForm = lazy(() => import('./pages/ReadingEntryForm').then((m) => ({ default: m.ReadingEntryForm })));
 const Shelf = lazy(() => import('./pages/Shelf').then((m) => ({ default: m.Shelf })));
 const ShelfItemForm = lazy(() => import('./pages/ShelfItemForm').then((m) => ({ default: m.ShelfItemForm })));
+const LibraryMembers = lazy(() => import('./pages/LibraryMembers').then((m) => ({ default: m.LibraryMembers })));
 const ShelfItemDetail = lazy(() => import('./pages/ShelfItemDetail').then((m) => ({ default: m.ShelfItemDetail })));
 const Loans = lazy(() => import('./pages/Loans').then((m) => ({ default: m.Loans })));
 const IsbnLookup = lazy(() => import('./pages/IsbnLookup').then((m) => ({ default: m.IsbnLookup })));
@@ -66,6 +67,7 @@ function App() {
                   <Route path="/read/:id/edit" element={<ReadingEntryForm />} />
                   <Route path="/shelf" element={<Shelf />} />
                   <Route path="/shelf/new" element={<ShelfItemForm />} />
+                  <Route path="/shelf/members" element={<LibraryMembers />} />
                   <Route path="/shelf/:id" element={<ShelfItemDetail />} />
                   <Route path="/loans" element={<Loans />} />
                   <Route path="/isbn" element={<IsbnLookup />} />

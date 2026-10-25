@@ -13,3 +13,9 @@ class LibraryAccessDeniedException(message: String) : ForbiddenException(message
 class ShelfItemAlreadyLentException(message: String) : ConflictException(message)
 
 class NoActiveLoanException(message: String) : ConflictException(message)
+
+class LibraryMemberNotFoundException(message: String) : NotFoundException(message)
+
+class AlreadyLibraryMemberException(message: String) : ConflictException(message)
+
+class CannotRemoveLibraryMemberException(message: String) : ForbiddenException(message)

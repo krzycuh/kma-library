@@ -4,12 +4,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { librariesApi } from '../api/libraries';
 import { shelfItemsApi } from '../api/shelfItems';
 import { PageHeader } from '../components/PageHeader';
+import { LibrarySwitcher } from '../components/LibrarySwitcher';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { BookCover } from '../components/BookCover';
-import { useDefaultLibrary } from '../hooks/useLibraries';
+import { useCurrentLibrary } from '../hooks/useLibraries';
 import { useToast } from '../hooks/useToast';
 import { t } from '../i18n';
 import type { ShelfItem } from '../types/shelf';
@@ -22,7 +23,7 @@ import { getApiErrorMessage } from '../utils/apiError';
 export function Loans() {
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { library, isLoading: libraryLoading, isError: libraryError } = useDefaultLibrary();
+  const { library, isLoading: libraryLoading, isError: libraryError } = useCurrentLibrary();
   const [returning, setReturning] = useState<ShelfItem | null>(null);
 
   const loansQuery = useQuery({
@@ -63,6 +64,10 @@ export function Loans() {
             : t.loans.subtitle
         }
       />
+
+      <div className="mb-4">
+        <LibrarySwitcher />
+      </div>
 
       {libraryLoading || (library && loansQuery.isLoading) ? (
         <LoadingSkeleton />
