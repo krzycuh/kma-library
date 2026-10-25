@@ -372,6 +372,12 @@ export const pl = {
     roleAdmin: 'Admin',
     roleUser: 'Użytkownik',
   },
+  version: {
+    frontend: 'Frontend',
+    backend: 'Backend',
+    backendBuilt: 'Backend zbudowany',
+    differ: 'Frontend i backend pochodzą z różnych commitów – odśwież stronę albo zrestartuj backend.',
+  },
   months: ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec', 'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'],
   monthsShort: ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'],
 };

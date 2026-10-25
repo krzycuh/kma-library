@@ -64,6 +64,8 @@ jobs:
         with:
           context: ./frontend
           push: false
+          build-args: |
+            VERSION=${{ github.sha }}
           tags: kma-library-frontend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

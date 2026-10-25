@@ -3,6 +3,7 @@ FROM node:20-alpine AS builder
 
 # Accept build arguments
 ARG VERSION=dev
+ARG RELEASE_TAG=
 ARG BUILD_DATE
 
 WORKDIR /app
@@ -18,6 +19,7 @@ COPY . .
 
 # Build the application with version info
 ENV VITE_APP_VERSION=${VERSION}
+ENV VITE_RELEASE_TAG=${RELEASE_TAG}
 RUN npm run build
 
 # Production stage

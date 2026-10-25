@@ -10,8 +10,10 @@ COPY gradle ./gradle
 # Copy source code
 COPY src ./src
 
-# Build the application
-RUN gradle build -x test --no-daemon
+# Build the application (commit and release tag end up in build-info, shown in the app)
+ARG VCS_REF=dev
+ARG RELEASE_TAG=
+RUN gradle build -x test --no-daemon -PgitSha=${VCS_REF} -PreleaseTag=${RELEASE_TAG}
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-jammy

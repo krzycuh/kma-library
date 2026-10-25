@@ -24,6 +24,20 @@ repositories {
     mavenCentral()
 }
 
+// Version shown in the app: CI passes -PgitSha=<commit> (and -PreleaseTag=<tag> for releases); local builds say "dev"
+springBoot {
+    buildInfo {
+        properties {
+            additional.set(
+                mapOf(
+                    "gitSha" to (findProperty("gitSha")?.toString()?.takeIf { it.isNotBlank() } ?: "dev"),
+                    "releaseTag" to (findProperty("releaseTag")?.toString() ?: ""),
+                ),
+            )
+        }
+    }
+}
+
 dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
