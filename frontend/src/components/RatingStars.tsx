@@ -23,7 +23,7 @@ export function RatingStars({ value, onChange, size = 'md', className = '' }: Ra
     return (
       <span className={`inline-flex ${sizeClasses[size]} leading-none ${className}`} aria-label={t.reading.ratingLabel(value)}>
         {stars.map((star) => (
-          <span key={star} className={star <= value ? 'text-amber-400' : 'text-gray-300'} aria-hidden="true">
+          <span key={star} className={star <= value ? 'text-star' : 'text-gray-300'} aria-hidden="true">
             ★
           </span>
         ))}
@@ -44,7 +44,7 @@ export function RatingStars({ value, onChange, size = 'md', className = '' }: Ra
             aria-label={t.reading.ratingLabel(star)}
             onClick={() => onChange(value === star ? null : star)}
             className={`${sizeClasses[size]} leading-none transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded ${
-              selected ? 'text-amber-400' : 'text-gray-300'
+              selected ? 'text-star' : 'text-gray-300'
             }`}
           >
             ★

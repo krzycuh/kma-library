@@ -1,0 +1,106 @@
+/*
+ * Color themes. Tailwind's gray/blue/red/green/amber/yellow/white read these variables (tailwind.config.js),
+ * so components keep plain classes (bg-white, text-gray-900, bg-blue-600) and the theme swaps meaning:
+ *
+ *            light (Tailwind defaults)     neon (html.dark)
+ *   white    white cards                   dark violet cards
+ *   gray     light → dark scale            inverted: near-black page → light text
+ *   blue     primary blue                  violet / fuchsia (actions, links, focus)
+ *   green    "on shelf", success           neon green
+ *   amber    "lent"                        cyan
+ *   red      overdue, errors, danger       pink
+ *   star     rating stars (amber)          pink
+ */
+:root {
+  --c-white: 255 255 255;
+  --c-star: 251 191 36;
+
+  --c-gray-50: 249 250 251; --c-gray-100: 243 244 246; --c-gray-200: 229 231 235; --c-gray-300: 209 213 219;
+  --c-gray-400: 156 163 175; --c-gray-500: 107 114 128; --c-gray-600: 75 85 99; --c-gray-700: 55 65 81;
+  --c-gray-800: 31 41 55; --c-gray-900: 17 24 39; --c-gray-950: 3 7 18;
+
+  --c-blue-50: 239 246 255; --c-blue-100: 219 234 254; --c-blue-200: 191 219 254; --c-blue-300: 147 197 253;
+  --c-blue-400: 96 165 250; --c-blue-500: 59 130 246; --c-blue-600: 37 99 235; --c-blue-700: 29 78 216;
+  --c-blue-800: 30 64 175; --c-blue-900: 30 58 138; --c-blue-950: 23 37 84;
+
+  --c-red-50: 254 242 242; --c-red-100: 254 226 226; --c-red-200: 254 202 202; --c-red-300: 252 165 165;
+  --c-red-400: 248 113 113; --c-red-500: 239 68 68; --c-red-600: 220 38 38; --c-red-700: 185 28 28;
+  --c-red-800: 153 27 27; --c-red-900: 127 29 29; --c-red-950: 69 10 10;
+
+  --c-green-50: 240 253 244; --c-green-100: 220 252 231; --c-green-200: 187 247 208; --c-green-300: 134 239 172;
+  --c-green-400: 74 222 128; --c-green-500: 34 197 94; --c-green-600: 22 163 74; --c-green-700: 21 128 61;
+  --c-green-800: 22 101 52; --c-green-900: 20 83 45; --c-green-950: 5 46 22;
+
+  --c-amber-50: 255 251 235; --c-amber-100: 254 243 199; --c-amber-200: 253 230 138; --c-amber-300: 252 211 77;
+  --c-amber-400: 251 191 36; --c-amber-500: 245 158 11; --c-amber-600: 217 119 6; --c-amber-700: 180 83 9;
+  --c-amber-800: 146 64 14; --c-amber-900: 120 53 15; --c-amber-950: 69 26 3;
+
+  --c-yellow-50: 254 252 232; --c-yellow-100: 254 249 195; --c-yellow-200: 254 240 138; --c-yellow-300: 253 224 71;
+  --c-yellow-400: 250 204 21; --c-yellow-500: 234 179 8; --c-yellow-600: 202 138 4; --c-yellow-700: 161 98 7;
+  --c-yellow-800: 133 77 14; --c-yellow-900: 113 63 18; --c-yellow-950: 66 32 6;
+}
+
+html.dark {
+  color-scheme: dark;
+
+  --c-white: 22 19 34;
+  --c-star: 240 171 252;
+
+  /* Inverted: 50 is the page, 900 the main text */
+  --c-gray-50: 11 10 18; --c-gray-100: 28 24 40; --c-gray-200: 44 37 64; --c-gray-300: 59 51 84;
+  --c-gray-400: 111 104 134; --c-gray-500: 141 134 163; --c-gray-600: 180 173 201; --c-gray-700: 214 208 230;
+  --c-gray-800: 233 229 245; --c-gray-900: 245 243 255; --c-gray-950: 250 249 255;
+
+  /* Violet → fuchsia. 600 is the bright button fill; text-white on it reads as dark text */
+  --c-blue-50: 31 22 48; --c-blue-100: 42 29 64; --c-blue-200: 76 47 107; --c-blue-300: 126 70 170;
+  --c-blue-400: 192 132 252; --c-blue-500: 168 85 247; --c-blue-600: 232 121 249; --c-blue-700: 240 171 252;
+  --c-blue-800: 245 208 254; --c-blue-900: 250 232 255; --c-blue-950: 253 244 255;
+
+  /* Pink */
+  --c-red-50: 42 16 32; --c-red-100: 58 21 48; --c-red-200: 107 34 80; --c-red-300: 157 47 114;
+  --c-red-400: 244 114 182; --c-red-500: 244 114 182; --c-red-600: 244 114 182; --c-red-700: 249 168 212;
+  --c-red-800: 251 207 232; --c-red-900: 252 231 243; --c-red-950: 253 242 248;
+
+  /* Neon green */
+  --c-green-50: 13 36 24; --c-green-100: 18 48 31; --c-green-200: 22 101 52; --c-green-300: 34 160 90;
+  --c-green-400: 74 222 128; --c-green-500: 74 222 128; --c-green-600: 74 222 128; --c-green-700: 134 239 172;
+  --c-green-800: 187 247 208; --c-green-900: 220 252 231; --c-green-950: 240 253 244;
+
+  /* Cyan */
+  --c-amber-50: 12 34 41; --c-amber-100: 15 42 51; --c-amber-200: 21 94 117; --c-amber-300: 14 116 144;
+  --c-amber-400: 34 211 238; --c-amber-500: 34 211 238; --c-amber-600: 34 211 238; --c-amber-700: 103 232 249;
+  --c-amber-800: 165 243 252; --c-amber-900: 207 250 254; --c-amber-950: 236 254 255;
+
+  /* Neon yellow (warnings) */
+  --c-yellow-50: 38 33 8; --c-yellow-100: 51 44 10; --c-yellow-200: 113 63 18; --c-yellow-300: 202 138 4;
+  --c-yellow-400: 250 204 21; --c-yellow-500: 250 204 21; --c-yellow-600: 250 204 21; --c-yellow-700: 253 224 71;
+  --c-yellow-800: 254 240 138; --c-yellow-900: 254 249 195; --c-yellow-950: 254 252 232;
+}
+
+/* Focus-ring gaps take the page color instead of Tailwind's hard-coded white */
+html.dark *, html.dark ::before, html.dark ::after {
+  --tw-ring-offset-color: rgb(var(--c-gray-50));
+}
+
+/* Shadows vanish on black: cards get a thin outline, overlays a deep shadow */
+html.dark .shadow-sm, html.dark .shadow, html.dark .shadow-inner {
+  --tw-shadow: 0 0 0 1px rgb(var(--c-gray-200));
+}
+html.dark .shadow-md, html.dark .shadow-lg, html.dark .shadow-xl {
+  --tw-shadow: 0 0 0 1px rgb(var(--c-gray-200)), 0 12px 32px rgb(0 0 0 / 0.6);
+}
+
+/* Neon glow on primary actions; keeps focus rings (they share box-shadow) */
+html.dark .bg-blue-600 {
+  --tw-shadow: 0 0 16px rgb(232 121 249 / 0.4);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+html.dark .logo-glow {
+  text-shadow: 0 0 12px rgb(232 121 249 / 0.6);
+}
+
+/* Form fields without an explicit bg-* class get the browser's grey dark default; match the page instead.
+   :where() keeps specificity at zero, so any bg-* utility still wins. */
+html.dark :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) {
+  background-color: rgb(var(--c-gray-50));
+}

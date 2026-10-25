@@ -3,7 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { UserRole } from '../types/auth';
 import logoCard from '../assets/logo-card.svg';
+import logoCardNeon from '../assets/logo-card-neon.svg';
 import { VersionInfo } from './VersionInfo';
+import { ThemeSwitcher } from './ThemeSwitcher';
 import { t } from '../i18n';
 
 /**
@@ -61,9 +63,10 @@ export function Navigation() {
               aria-label={t.nav.home}
             >
               <span className="flex items-center gap-2">
-                <img src={logoCard} alt="" className="h-8 w-auto" />
+                <img src={logoCard} alt="" className="h-8 w-auto dark:hidden" />
+                <img src={logoCardNeon} alt="" className="hidden h-8 w-auto dark:block" />
                 <span className="flex flex-col leading-tight">
-                  <span className="text-xl font-bold tracking-tight">{t.app.name}</span>
+                  <span className="logo-glow text-xl font-bold tracking-tight">{t.app.name}</span>
                   <VersionInfo className="text-xs font-medium" />
                 </span>
               </span>
@@ -78,6 +81,7 @@ export function Navigation() {
             >
               {t.nav.addRead}
             </Link>
+            <ThemeSwitcher variant="compact" />
             <button
               onClick={logout}
               className="rounded px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -120,6 +124,9 @@ export function Navigation() {
           >
             {t.nav.addRead}
           </Link>
+          <div className="border-t border-gray-200 pt-3">
+            <ThemeSwitcher />
+          </div>
           <button
             onClick={logout}
             className="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
