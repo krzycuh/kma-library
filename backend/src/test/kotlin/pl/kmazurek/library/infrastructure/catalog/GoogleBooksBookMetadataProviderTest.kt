@@ -65,4 +65,21 @@ class GoogleBooksBookMetadataProviderTest {
 
         assertThrows<BookMetadataUnavailableException> { provider().lookupByIsbn(Isbn.parse("9780140328721")) }
     }
+
+    @Test
+    fun `should retry once after a 5xx such as backendFailed`() {
+        server.enqueue(jsonResponse("""{"error":{"code":503,"errors":[{"reason":"backendFailed"}]}}""", status = 503))
+        server.enqueue(jsonResponse(fixture("google/isbn-9780140328721.json")))
+
+        assertEquals("Fantastic Mr Fox", provider().lookupByIsbn(Isbn.parse("9780140328721"))!!.title)
+        assertEquals(2, server.requestCount)
+    }
+
+    @Test
+    fun `should not retry client errors`() {
+        server.enqueue(jsonResponse("""{"error":{"code":400}}""", status = 400))
+
+        assertThrows<BookMetadataUnavailableException> { provider().lookupByIsbn(Isbn.parse("9780140328721")) }
+        assertEquals(1, server.requestCount)
+    }
 }

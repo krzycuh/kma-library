@@ -23,14 +23,16 @@ class GoogleBooksBookMetadataProvider(
     override fun lookupByIsbn(isbn: Isbn): BookMetadata? {
         val response =
             try {
-                restClient.get()
-                    .uri {
-                        it.path("/books/v1/volumes").queryParam("q", "isbn:${isbn.value}")
-                        apiKey?.takeIf { key -> key.isNotBlank() }?.let { key -> it.queryParam("key", key) }
-                        it.build()
-                    }
-                    .retrieve()
-                    .body(GoogleVolumes::class.java)
+                retryOnceOnServerError {
+                    restClient.get()
+                        .uri {
+                            it.path("/books/v1/volumes").queryParam("q", "isbn:${isbn.value}")
+                            apiKey?.takeIf { key -> key.isNotBlank() }?.let { key -> it.queryParam("key", key) }
+                            it.build()
+                        }
+                        .retrieve()
+                        .body(GoogleVolumes::class.java)
+                }
             } catch (ex: HttpClientErrorException.NotFound) {
                 return null
             } catch (ex: RestClientException) {

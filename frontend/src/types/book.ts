@@ -1,4 +1,4 @@
-export type BookSource = 'MANUAL' | 'OPEN_LIBRARY' | 'GOOGLE_BOOKS';
+export type BookSource = 'MANUAL' | 'OPEN_LIBRARY' | 'GOOGLE_BOOKS' | 'NATIONAL_LIBRARY';
 
 export interface Book {
   id: string;

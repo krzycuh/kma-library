@@ -1,0 +1,21 @@
+{
+  "nextPage": "",
+  "bibs": [
+    {
+      "id": 4416730,
+      "createdDate": "2012-06-01T00:00:00.000+0200",
+      "updatedDate": "2019-03-12T10:21:45.000+0100",
+      "title": "Solaris / Stanisław Lem.",
+      "author": "Lem, Stanisław (1921-2006)",
+      "placeOfPublication": "Kraków",
+      "location": "Kraków",
+      "publisher": "Wydawnictwo Literackie",
+      "language": "polski",
+      "subject": "Fantastyka naukowa polska -- 20 w.",
+      "publicationYear": "2012",
+      "isbnIssn": "9788308049402",
+      "kind": "Książki",
+      "formOfWork": "Powieść"
+    }
+  ]
+}

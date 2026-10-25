@@ -26,16 +26,18 @@ class OpenLibraryBookMetadataProvider(
         val key = "ISBN:${isbn.value}"
         val response =
             try {
-                restClient.get()
-                    .uri {
-                        it.path("/api/books")
-                            .queryParam("bibkeys", key)
-                            .queryParam("format", "json")
-                            .queryParam("jscmd", "data")
-                            .build()
-                    }
-                    .retrieve()
-                    .body(object : ParameterizedTypeReference<Map<String, OpenLibraryBook>>() {})
+                retryOnceOnServerError {
+                    restClient.get()
+                        .uri {
+                            it.path("/api/books")
+                                .queryParam("bibkeys", key)
+                                .queryParam("format", "json")
+                                .queryParam("jscmd", "data")
+                                .build()
+                        }
+                        .retrieve()
+                        .body(object : ParameterizedTypeReference<Map<String, OpenLibraryBook>>() {})
+                }
             } catch (ex: HttpClientErrorException.NotFound) {
                 return null
             } catch (ex: RestClientException) {

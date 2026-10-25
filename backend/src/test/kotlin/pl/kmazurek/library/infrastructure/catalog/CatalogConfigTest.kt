@@ -30,7 +30,7 @@ class CatalogConfigTest {
 
     @Test
     fun `should wrap single and chained providers in the cache`() {
-        listOf("openlibrary", "google", "openlibrary,google", "Google, OpenLibrary").forEach { providers ->
+        listOf("openlibrary", "google", "bn", "openlibrary,bn,google", "Google, OpenLibrary").forEach { providers ->
             contextRunner.withPropertyValues("app.catalog.providers=$providers").run { context ->
                 assertThat(context.getBean(BookMetadataProvider::class.java)).isInstanceOf(CachingBookMetadataProvider::class.java)
             }

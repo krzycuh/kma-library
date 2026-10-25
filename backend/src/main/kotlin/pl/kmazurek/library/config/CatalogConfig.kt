@@ -11,6 +11,7 @@ import pl.kmazurek.library.application.service.BookMetadataProvider
 import pl.kmazurek.library.infrastructure.catalog.CachingBookMetadataProvider
 import pl.kmazurek.library.infrastructure.catalog.FallbackBookMetadataProvider
 import pl.kmazurek.library.infrastructure.catalog.GoogleBooksBookMetadataProvider
+import pl.kmazurek.library.infrastructure.catalog.NationalLibraryBookMetadataProvider
 import pl.kmazurek.library.infrastructure.catalog.NoOpBookMetadataProvider
 import pl.kmazurek.library.infrastructure.catalog.OpenLibraryBookMetadataProvider
 import java.net.ProxySelector
@@ -19,7 +20,7 @@ import java.time.Duration
 
 /**
  * External book catalogs for ISBN lookup: app.catalog.providers = comma-separated list, asked in order
- * (e.g. "openlibrary,google"); "none" or empty disables external lookup.
+ * (e.g. "openlibrary,bn,google"; bn = Biblioteka Narodowa); "none" or empty disables external lookup.
  */
 @Configuration
 class CatalogConfig(
@@ -28,6 +29,7 @@ class CatalogConfig(
     @Value("\${app.catalog.openlibrary.base-url:https://openlibrary.org}") private val openLibraryBaseUrl: String,
     @Value("\${app.catalog.google.base-url:https://www.googleapis.com}") private val googleBaseUrl: String,
     @Value("\${app.catalog.google.api-key:}") private val googleApiKey: String,
+    @Value("\${app.catalog.bn.base-url:https://data.bn.org.pl}") private val nationalLibraryBaseUrl: String,
 ) {
     private val logger = LoggerFactory.getLogger(CatalogConfig::class.java)
 
@@ -46,17 +48,18 @@ class CatalogConfig(
             return NoOpBookMetadataProvider()
         }
         val adapters =
-            names.map { name ->
+            names.associateWith { name ->
                 when (name) {
                     "openlibrary" -> OpenLibraryBookMetadataProvider(restClient(restClientBuilder, openLibraryBaseUrl))
                     "google" -> GoogleBooksBookMetadataProvider(restClient(restClientBuilder, googleBaseUrl), googleApiKey)
+                    "bn" -> NationalLibraryBookMetadataProvider(restClient(restClientBuilder, nationalLibraryBaseUrl))
                     else -> throw IllegalStateException(
-                        "Unknown app.catalog.providers entry '$name' (expected none, openlibrary or google)",
+                        "Unknown app.catalog.providers entry '$name' (expected none, openlibrary, google or bn)",
                     )
                 }
             }
         logger.info("Book metadata providers: {} (timeout {} each)", names.joinToString(" -> "), timeout)
-        val chain = adapters.singleOrNull() ?: FallbackBookMetadataProvider(adapters)
+        val chain = adapters.values.singleOrNull() ?: FallbackBookMetadataProvider(adapters)
         return CachingBookMetadataProvider(chain, cacheManager)
     }
 

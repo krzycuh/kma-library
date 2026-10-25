@@ -26,7 +26,7 @@ class FallbackBookMetadataProviderTest {
     fun setup() {
         first = mockk()
         second = mockk()
-        provider = FallbackBookMetadataProvider(listOf(first, second))
+        provider = FallbackBookMetadataProvider(linkedMapOf("first" to first, "second" to second))
     }
 
     @Test
@@ -66,6 +66,7 @@ class FallbackBookMetadataProviderTest {
         every { first.lookupByIsbn(isbn) } returns null
         every { second.lookupByIsbn(isbn) } throws BookMetadataUnavailableException("quota")
 
-        assertThrows<BookMetadataUnavailableException> { provider.lookupByIsbn(isbn) }
+        val ex = assertThrows<BookMetadataUnavailableException> { provider.lookupByIsbn(isbn) }
+        assertEquals("ISBN ${isbn.value} not found in first; unavailable: second", ex.message)
     }
 }
