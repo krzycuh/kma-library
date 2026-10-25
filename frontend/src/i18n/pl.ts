@@ -372,6 +372,12 @@ export const pl = {
     roleAdmin: 'Admin',
     roleUser: 'Użytkownik',
   },
+  errorPage: {
+    title: 'Ups! Coś poszło nie tak',
+    text: 'Przepraszamy za kłopot. Odśwież stronę – jeśli błąd się powtarza, daj znać administratorowi.',
+    details: 'Szczegóły błędu',
+    reload: 'Odśwież stronę',
+  },
   theme: {
     label: 'Motyw',
     options: { system: 'Systemowy', light: 'Jasny', dark: 'Ciemny' } as Record<string, string>,
