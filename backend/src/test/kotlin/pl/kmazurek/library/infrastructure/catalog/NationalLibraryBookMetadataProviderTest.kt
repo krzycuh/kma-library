@@ -1,5 +1,6 @@
 package pl.kmazurek.library.infrastructure.catalog
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -29,41 +30,55 @@ class NationalLibraryBookMetadataProviderTest {
     }
 
     @Test
-    fun `should map a record to the conventions of the other catalogs`() {
+    fun `should read title and main author from MARC, not from the glued flat fields`() {
         server.enqueue(jsonResponse(fixture("bn/isbn-9788308049402.json")))
 
         val metadata = provider.lookupByIsbn(Isbn.parse("978-83-08-04940-2"))!!
 
         assertEquals("9788308049402", metadata.isbn)
-        assertEquals("Solaris", metadata.title)
-        assertEquals(listOf("Stanisław Lem"), metadata.authors)
+        assertEquals("Nawiedzony dom: opowiadania zebrane", metadata.title)
+        assertEquals(listOf("Virginia Woolf"), metadata.authors)
         assertEquals(2012, metadata.publishedYear)
         assertNull(metadata.coverUrl)
         assertEquals(BookSource.NATIONAL_LIBRARY, metadata.source)
-        assertEquals("4416730", metadata.externalId)
+        assertEquals("2742627", metadata.externalId)
 
         val request = server.takeRequest(1, TimeUnit.SECONDS)!!
         assertEquals("/api/institutions/bibs.json", request.requestUrl!!.encodedPath)
         assertEquals("9788308049402", request.requestUrl!!.queryParameter("isbnIssn"))
+        assertEquals(1, server.requestCount)
     }
 
     @Test
-    fun `should pick the record with the exact ISBN and split several authors`() {
-        server.enqueue(jsonResponse(fixture("bn/isbn-9788381882385.json")))
+    fun `should ask again with the ISBN-10 when the book is catalogued with it`() {
+        server.enqueue(jsonResponse(fixture("bn/not-found.json")))
+        server.enqueue(jsonResponse(fixture("bn/isbn10-8871351460.json")))
 
-        val metadata = provider.lookupByIsbn(Isbn.parse("9788381882385"))!!
+        val metadata = provider.lookupByIsbn(Isbn.parse("8871351460"))!!
 
-        assertEquals("Dobry omen: prawdziwa i rzetelna przepowiednia Agnes Nutter, czarownicy", metadata.title)
-        assertEquals(listOf("Terry Pratchett", "Neil Gaiman"), metadata.authors)
-        assertEquals(2019, metadata.publishedYear)
-        assertEquals("7001002", metadata.externalId)
+        assertEquals("9788871351469", metadata.isbn)
+        assertEquals("Matka Teresa: miłość w czynach", metadata.title)
+        assertEquals(listOf("Lush Gjergji"), metadata.authors)
+        assertEquals(2002, metadata.publishedYear)
+        assertEquals("9788871351469", server.takeRequest(1, TimeUnit.SECONDS)!!.requestUrl!!.queryParameter("isbnIssn"))
+        assertEquals("8871351460", server.takeRequest(1, TimeUnit.SECONDS)!!.requestUrl!!.queryParameter("isbnIssn"))
     }
 
     @Test
-    fun `should return null when there is no record`() {
+    fun `should return null when neither ISBN form has a record`() {
+        server.enqueue(jsonResponse(fixture("bn/not-found.json")))
         server.enqueue(jsonResponse(fixture("bn/not-found.json")))
 
         assertNull(provider.lookupByIsbn(Isbn.parse("9788383226347")))
+        assertEquals(2, server.requestCount)
+    }
+
+    @Test
+    fun `should not ask for an ISBN-10 that does not exist`() {
+        server.enqueue(jsonResponse(fixture("bn/not-found.json")))
+
+        assertNull(provider.lookupByIsbn(Isbn.parse("9791032305690")))
+        assertEquals(1, server.requestCount)
     }
 
     @Test
@@ -76,14 +91,32 @@ class NationalLibraryBookMetadataProviderTest {
     }
 
     @Test
-    fun `should normalize catalogue-style titles and author names`() {
-        assertEquals("Lalka", NationalLibraryBookMetadataProvider.cleanTitle("Lalka."))
-        assertEquals("Lalka", NationalLibraryBookMetadataProvider.cleanTitle("Lalka /"))
-        assertNull(NationalLibraryBookMetadataProvider.cleanTitle(" / "))
-        assertEquals(
-            listOf("Bolesław Prus", "Olga Tokarczuk", "Homer"),
-            NationalLibraryBookMetadataProvider.parseAuthors("Prus, Bolesław (1847-1912).|Tokarczuk, Olga (1962- ) ; Homer"),
-        )
-        assertEquals(emptyList<String>(), NationalLibraryBookMetadataProvider.parseAuthors(null))
+    fun `should take co-authors marked as authors, skip translators, join volume parts`() {
+        // Synthetic record: the real samples have no 700 fields within the captured part
+        val marc =
+            ObjectMapper().readTree(
+                """
+                {"fields": [
+                  {"100": {"subfields": [{"a": "Pratchett, Terry"}, {"d": "(1948-2015)"}, {"e": "Autor"}]}},
+                  {"245": {"subfields": [{"a": "Dobry omen."}, {"n": "T. 1 ,"}, {"b": "prawdziwa przepowiednia /"}, {"c": "x"}]}},
+                  {"700": {"subfields": [{"a": "Gaiman, Neil"}, {"d": "(1960- )"}, {"e": "Autor"}]}},
+                  {"700": {"subfields": [{"a": "Gałązka, Jacek"}, {"e": "Tłumaczenie"}]}}
+                ]}
+                """,
+            )
+        val record = NationalLibraryBookMetadataProvider.MarcRecord(marc)
+
+        assertEquals("Dobry omen. T. 1: prawdziwa przepowiednia", record.title())
+        assertEquals(listOf("Terry Pratchett", "Neil Gaiman"), record.authors())
+    }
+
+    @Test
+    fun `should fall back to the statement of responsibility without a main entry`() {
+        val marc =
+            ObjectMapper().readTree(
+                """{"fields": [{"245": {"subfields": [{"a": "Antologia /"}, {"c": "Jan Nowak i Anna Kowalska ; [wybór X]."}]}}]}""",
+            )
+
+        assertEquals(listOf("Jan Nowak", "Anna Kowalska"), NationalLibraryBookMetadataProvider.MarcRecord(marc).authors())
     }
 }

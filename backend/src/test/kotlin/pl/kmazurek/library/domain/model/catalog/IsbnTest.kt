@@ -48,4 +48,12 @@ class IsbnTest {
         assertNull(Isbn.parseOrNull("not-an-isbn"))
         assertEquals("9788308055144", Isbn.parseOrNull("9788308055144")?.value)
     }
+
+    @Test
+    fun `should convert back to ISBN-10 when it exists`() {
+        assertEquals("8871351460", Isbn.parse("9788871351469").toIsbn10())
+        assertEquals("080442957X", Isbn.parse("080442957X").toIsbn10())
+        assertEquals("0306406152", Isbn.parse("9780306406157").toIsbn10())
+        assertNull(Isbn.parse("9791032305690").toIsbn10())
+    }
 }

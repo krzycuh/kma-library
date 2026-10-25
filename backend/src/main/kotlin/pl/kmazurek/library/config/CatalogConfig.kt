@@ -59,6 +59,9 @@ class CatalogConfig(
                 }
             }
         logger.info("Book metadata providers: {} (timeout {} each)", names.joinToString(" -> "), timeout)
+        if ("google" in names && googleApiKey.isBlank()) {
+            logger.warn("Google Books is enabled without APP_CATALOG_GOOGLE_API_KEY: keyless requests get no quota (429)")
+        }
         val chain = adapters.values.singleOrNull() ?: FallbackBookMetadataProvider(adapters)
         return CachingBookMetadataProvider(chain, cacheManager)
     }
