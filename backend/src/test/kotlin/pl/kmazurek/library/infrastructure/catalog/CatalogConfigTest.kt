@@ -20,16 +20,18 @@ class CatalogConfigTest {
             .withBean(CacheManager::class.java, { ConcurrentMapCacheManager() })
 
     @Test
-    fun `should use no external catalog when the provider is none`() {
-        contextRunner.withPropertyValues("app.catalog.provider=none").run { context ->
-            assertThat(context.getBean(BookMetadataProvider::class.java)).isInstanceOf(NoOpBookMetadataProvider::class.java)
+    fun `should use no external catalog when providers are none or empty`() {
+        listOf("none", "", " none , ").forEach { providers ->
+            contextRunner.withPropertyValues("app.catalog.providers=$providers").run { context ->
+                assertThat(context.getBean(BookMetadataProvider::class.java)).isInstanceOf(NoOpBookMetadataProvider::class.java)
+            }
         }
     }
 
     @Test
-    fun `should wrap real providers in the cache`() {
-        listOf("openlibrary", "google").forEach { provider ->
-            contextRunner.withPropertyValues("app.catalog.provider=$provider").run { context ->
+    fun `should wrap single and chained providers in the cache`() {
+        listOf("openlibrary", "google", "openlibrary,google", "Google, OpenLibrary").forEach { providers ->
+            contextRunner.withPropertyValues("app.catalog.providers=$providers").run { context ->
                 assertThat(context.getBean(BookMetadataProvider::class.java)).isInstanceOf(CachingBookMetadataProvider::class.java)
             }
         }
@@ -37,7 +39,7 @@ class CatalogConfigTest {
 
     @Test
     fun `should fail fast on an unknown provider`() {
-        contextRunner.withPropertyValues("app.catalog.provider=amazon").run { context ->
+        contextRunner.withPropertyValues("app.catalog.providers=openlibrary,amazon").run { context ->
             assertThat(context).hasFailed()
         }
     }

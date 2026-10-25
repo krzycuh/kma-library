@@ -9,6 +9,7 @@ import org.springframework.http.client.JdkClientHttpRequestFactory
 import org.springframework.web.client.RestClient
 import pl.kmazurek.library.application.service.BookMetadataProvider
 import pl.kmazurek.library.infrastructure.catalog.CachingBookMetadataProvider
+import pl.kmazurek.library.infrastructure.catalog.FallbackBookMetadataProvider
 import pl.kmazurek.library.infrastructure.catalog.GoogleBooksBookMetadataProvider
 import pl.kmazurek.library.infrastructure.catalog.NoOpBookMetadataProvider
 import pl.kmazurek.library.infrastructure.catalog.OpenLibraryBookMetadataProvider
@@ -17,11 +18,12 @@ import java.net.http.HttpClient
 import java.time.Duration
 
 /**
- * External book catalog: app.catalog.provider = none | openlibrary | google
+ * External book catalogs for ISBN lookup: app.catalog.providers = comma-separated list, asked in order
+ * (e.g. "openlibrary,google"); "none" or empty disables external lookup.
  */
 @Configuration
 class CatalogConfig(
-    @Value("\${app.catalog.provider:none}") private val provider: String,
+    @Value("\${app.catalog.providers:none}") private val providers: String,
     @Value("\${app.catalog.timeout:3s}") private val timeout: Duration,
     @Value("\${app.catalog.openlibrary.base-url:https://openlibrary.org}") private val openLibraryBaseUrl: String,
     @Value("\${app.catalog.google.base-url:https://www.googleapis.com}") private val googleBaseUrl: String,
@@ -34,15 +36,28 @@ class CatalogConfig(
         restClientBuilder: RestClient.Builder,
         cacheManager: CacheManager,
     ): BookMetadataProvider {
-        val adapter =
-            when (provider.trim().lowercase()) {
-                "none", "" -> return NoOpBookMetadataProvider()
-                "openlibrary" -> OpenLibraryBookMetadataProvider(restClient(restClientBuilder, openLibraryBaseUrl))
-                "google" -> GoogleBooksBookMetadataProvider(restClient(restClientBuilder, googleBaseUrl), googleApiKey)
-                else -> throw IllegalStateException("Unknown app.catalog.provider '$provider' (expected none, openlibrary or google)")
+        val names =
+            providers.split(",")
+                .map { it.trim().lowercase() }
+                .filter { it.isNotEmpty() && it != "none" }
+                .distinct()
+        if (names.isEmpty()) {
+            logger.info("Book metadata providers: none (external ISBN lookup disabled)")
+            return NoOpBookMetadataProvider()
+        }
+        val adapters =
+            names.map { name ->
+                when (name) {
+                    "openlibrary" -> OpenLibraryBookMetadataProvider(restClient(restClientBuilder, openLibraryBaseUrl))
+                    "google" -> GoogleBooksBookMetadataProvider(restClient(restClientBuilder, googleBaseUrl), googleApiKey)
+                    else -> throw IllegalStateException(
+                        "Unknown app.catalog.providers entry '$name' (expected none, openlibrary or google)",
+                    )
+                }
             }
-        logger.info("Book metadata provider: {} (timeout {})", provider, timeout)
-        return CachingBookMetadataProvider(adapter, cacheManager)
+        logger.info("Book metadata providers: {} (timeout {} each)", names.joinToString(" -> "), timeout)
+        val chain = adapters.singleOrNull() ?: FallbackBookMetadataProvider(adapters)
+        return CachingBookMetadataProvider(chain, cacheManager)
     }
 
     private fun restClient(

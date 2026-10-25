@@ -134,7 +134,7 @@ Frontend:
 ## Faza 6 – ISBN i katalog publiczny
 
 - Pole ISBN w `BookPicker` i formularzach; walidacja po stronie frontu (ta sama logika co `Isbn` VO, w `utils/isbn.ts` z testem).
-- `OpenLibraryBookMetadataProvider` (Spring `RestClient`, timeout 3 s, cache w `CacheManager` po ISBN, mapowanie na `BookMetadata{title, authors, publishedYear, coverUrl}`); `GET /api/books/lookup?isbn=`. Provider wybierany przez `app.catalog.provider=none|openlibrary|google`.
+- `OpenLibraryBookMetadataProvider` (Spring `RestClient`, timeout 3 s, cache w `CacheManager` po ISBN, mapowanie na `BookMetadata{title, authors, publishedYear, coverUrl}`); `GET /api/books/lookup?isbn=`. Źródła w `app.catalog.providers` (lista odpytywana po kolei, domyślnie `openlibrary,google`; `none` wyłącza).
 - Flow w UI: wpisuję/skanuję ISBN → podgląd metadanych → "Dodaj na półkę" / "Dodaj jako przeczytaną" z prefillem.
 - Okładki: przechowujemy tylko URL (jak avatary w poker-stats); brak uploadów w MVP.
 - Admin: scalanie duplikatów książek (`POST /admin/books/{id}/merge-into/{targetId}` – przepina `reading_entries` i `shelf_items`).
