@@ -7,4 +7,5 @@ enum class BookSource {
     MANUAL,
     OPEN_LIBRARY,
     GOOGLE_BOOKS,
+    NATIONAL_LIBRARY,
 }

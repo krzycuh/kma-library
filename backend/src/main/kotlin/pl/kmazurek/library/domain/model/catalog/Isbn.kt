@@ -8,6 +8,17 @@ package pl.kmazurek.library.domain.model.catalog
 value class Isbn private constructor(val value: String) {
     override fun toString() = value
 
+    /**
+     * The ISBN-10 form (older books are catalogued with it); null for 979-prefixed ISBNs, which have none.
+     */
+    fun toIsbn10(): String? {
+        if (!value.startsWith("978")) return null
+        val base = value.substring(3, 12)
+        val sum = base.withIndex().sumOf { (i, c) -> (c - '0') * (10 - i) }
+        val check = (11 - sum % 11) % 11
+        return base + if (check == 10) "X" else check.toString()
+    }
+
     companion object {
         fun parse(raw: String): Isbn {
             val cleaned = raw.uppercase().replace("-", "").replace(" ", "")
