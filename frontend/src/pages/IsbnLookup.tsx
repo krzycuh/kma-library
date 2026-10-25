@@ -6,6 +6,7 @@ import { booksApi } from '../api/books';
 import { PageHeader } from '../components/PageHeader';
 import { BookCover } from '../components/BookCover';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { BarcodeScanner } from '../components/BarcodeScanner';
 import { useToast } from '../hooks/useToast';
 import { t } from '../i18n';
 import { formatAuthors } from '../utils/format';
@@ -17,8 +18,8 @@ type Destination = 'shelf' | 'read';
 const destinationPath: Record<Destination, string> = { shelf: '/shelf/new', read: '/read/new' };
 
 /**
- * /isbn (optional ?isbn=): type an ISBN → preview from our catalog or the external one →
- * add to the shelf or as read, with the book prefilled.
+ * /isbn (optional ?isbn=, ?scan=1 opens the scanner): scan or type an ISBN → preview from our catalog
+ * or the external one → add to the shelf or as read, with the book prefilled.
  */
 export function IsbnLookup() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ export function IsbnLookup() {
   const isbn = toIsbn13(searchParams.get('isbn') ?? '');
   const [input, setInput] = useState(searchParams.get('isbn') ?? '');
   const [inputError, setInputError] = useState<string | null>(null);
+  const [scanOpen, setScanOpen] = useState(searchParams.get('scan') === '1');
 
   useEffect(() => {
     setInput(searchParams.get('isbn') ?? '');
@@ -53,6 +55,21 @@ export function IsbnLookup() {
     onError: (err) => toast.error(isbnLookupErrorMessage(err)),
   });
 
+  const onScanned = (scanned: string) => {
+    setScanOpen(false);
+    setInputError(null);
+    setSearchParams({ isbn: scanned }, { replace: true });
+  };
+
+  const closeScanner = () => {
+    setScanOpen(false);
+    if (searchParams.has('scan')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('scan');
+      setSearchParams(next, { replace: true });
+    }
+  };
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const normalized = toIsbn13(input);
@@ -69,6 +86,7 @@ export function IsbnLookup() {
 
   return (
     <div className="mx-auto max-w-2xl">
+      <BarcodeScanner open={scanOpen} onClose={closeScanner} onDetected={onScanned} />
       <PageHeader title={t.isbn.title} description={t.isbn.subtitle} backTo="/" backLabel={t.nav.home} />
 
       <form onSubmit={onSubmit} className="rounded-lg bg-white p-4 shadow-sm sm:p-6" noValidate>
@@ -97,6 +115,14 @@ export function IsbnLookup() {
             {lookupQuery.isFetching ? t.isbn.searching : t.isbn.search}
           </button>
         </div>
+        <button
+          type="button"
+          onClick={() => setScanOpen(true)}
+          aria-label={t.scanner.openLabel}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-blue-600 bg-white px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <span aria-hidden="true">📷</span> {t.scanner.open}
+        </button>
         {inputError && (
           <p id="isbn-input-error" className="mt-2 text-sm text-red-700" role="alert">
             {inputError}
