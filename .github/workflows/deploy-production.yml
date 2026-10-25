@@ -33,9 +33,13 @@ jobs:
           java-version: '21'
           cache: gradle
 
+      # Commit (and release tag) go into build-info and are shown under the logo
       - name: Build backend artifacts
         working-directory: backend
-        run: ./gradlew build -x test --no-daemon
+        env:
+          GIT_SHA: ${{ github.sha }}
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: ./gradlew build -x test --no-daemon -PgitSha="$GIT_SHA" -PreleaseTag="$RELEASE_TAG"
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -48,8 +52,12 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # VITE_* variables are baked into the bundle; without them .env.production says "dev"
       - name: Build frontend assets
         working-directory: frontend
+        env:
+          VITE_APP_VERSION: ${{ github.sha }}
+          VITE_RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
         run: npm run build
 
       - name: Set up QEMU

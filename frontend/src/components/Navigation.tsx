@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { UserRole } from '../types/auth';
 import logoCard from '../assets/logo-card.svg';
-import { APP_VERSION_LABEL } from '../utils/appInfo';
+import { VersionInfo } from './VersionInfo';
 import { t } from '../i18n';
 
 /**
@@ -14,7 +14,6 @@ export function Navigation() {
   const location = useLocation();
   const isAdmin = user?.role === UserRole.ADMIN;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const versionLabel = APP_VERSION_LABEL;
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
 
@@ -65,7 +64,7 @@ export function Navigation() {
                 <img src={logoCard} alt="" className="h-8 w-auto" />
                 <span className="flex flex-col leading-tight">
                   <span className="text-xl font-bold tracking-tight">{t.app.name}</span>
-                  <span className="text-xs font-medium text-gray-500">{versionLabel}</span>
+                  <VersionInfo className="text-xs font-medium" />
                 </span>
               </span>
             </Link>
@@ -128,7 +127,9 @@ export function Navigation() {
           >
             {t.nav.logout}
           </button>
-          <p className="pt-2 text-xs font-medium text-gray-400">Frontend {versionLabel}</p>
+          <p className="pt-2 text-xs font-medium">
+            <VersionInfo variant="full" colorClassName="text-gray-400" />
+          </p>
         </div>
       </div>
     </nav>
