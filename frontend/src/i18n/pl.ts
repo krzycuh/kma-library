@@ -372,6 +372,13 @@ export const pl = {
     roleAdmin: 'Admin',
     roleUser: 'Użytkownik',
   },
+  cover: {
+    hint: 'Wklej adres obrazka okładki, np. „Kopiuj adres obrazu” na stronie księgarni lub Storytela.',
+    loading: 'Wczytywanie podglądu...',
+    loadFailed: 'Nie udało się wczytać obrazka – sprawdź adres (musi prowadzić bezpośrednio do obrazka).',
+    httpsOnly: 'Adres okładki musi zaczynać się od https:// i nie może zawierać spacji.',
+    tooLong: 'Adres okładki jest za długi (maks. 500 znaków).',
+  },
   errorPage: {
     title: 'Ups! Coś poszło nie tak',
     text: 'Przepraszamy za kłopot. Odśwież stronę – jeśli błąd się powtarza, daj znać administratorowi.',

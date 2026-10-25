@@ -5,6 +5,7 @@ import pl.kmazurek.library.domain.model.catalog.AuthorName
 import pl.kmazurek.library.domain.model.catalog.Book
 import pl.kmazurek.library.domain.model.catalog.BookId
 import pl.kmazurek.library.domain.model.catalog.BookTitle
+import pl.kmazurek.library.domain.model.catalog.CoverUrl
 import pl.kmazurek.library.domain.model.catalog.Isbn
 import pl.kmazurek.library.domain.model.user.UserId
 import pl.kmazurek.library.domain.repository.BookRepository
@@ -46,7 +47,7 @@ class UpdateBook(
                 authors = authors,
                 isbn = isbn,
                 publishedYear = command.publishedYear,
-                coverUrl = command.coverUrl?.trim()?.takeIf { it.isNotEmpty() },
+                coverUrl = CoverUrl.parseOrNull(command.coverUrl),
             ),
         )
     }

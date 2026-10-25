@@ -110,4 +110,43 @@ class FindOrCreateBookTest {
         assertThrows<IllegalArgumentException> { useCase.resolve(BookReference(title = "X"), user) }
         assertThrows<IllegalArgumentException> { useCase.resolve(BookReference(authors = "Y"), user) }
     }
+
+    @Test
+    fun `should create a manual book with a pasted cover`() {
+        every { bookRepository.findByIsbn(any()) } returns null
+        every { bookRepository.findByNormalizedKey(any()) } returns null
+
+        val result =
+            useCase.execute(
+                FindOrCreateBookCommand("Zawisza. Czarne krzyże", "Jacek Komuda", null, null, user, " https://covers.example/zawisza.jpg "),
+            )
+
+        assertEquals("https://covers.example/zawisza.jpg", result.coverUrl)
+    }
+
+    @Test
+    fun `should add a cover to an existing book that has none, without touching its other data`() {
+        val existing =
+            Book.create(
+                BookTitle.of("Solaris"),
+                AuthorName.parseList("Lem"),
+                Isbn.parse("9788308055144"),
+                createdByUserId = user,
+            )
+        every { bookRepository.findByNormalizedKey(existing.normalizedKey) } returns existing
+        val saved = slot<Book>()
+        every { bookRepository.save(capture(saved)) } answers { firstArg() }
+
+        useCase.execute(FindOrCreateBookCommand("Solaris", "Lem", null, null, user, "https://covers.example/solaris.jpg"))
+
+        assertEquals("https://covers.example/solaris.jpg", saved.captured.coverUrl)
+        assertEquals("9788308055144", saved.captured.isbn?.value)
+    }
+
+    @Test
+    fun `should reject a cover that is not an https address`() {
+        assertThrows<IllegalArgumentException> {
+            useCase.execute(FindOrCreateBookCommand("Lalka", "Prus", null, null, user, "http://covers.example/lalka.jpg"))
+        }
+    }
 }
