@@ -6,6 +6,7 @@ import logoCard from '../assets/logo-card.svg';
 import logoCardNeon from '../assets/logo-card-neon.svg';
 import { VersionInfo } from './VersionInfo';
 import { ThemeSwitcher } from './ThemeSwitcher';
+import { NavIcon } from './NavIcon';
 import { t } from '../i18n';
 
 /**
@@ -33,20 +34,25 @@ export function Navigation() {
   const sharedLinks = (
     <>
       <Link to="/read" className={linkClasses('/read')} aria-label={t.nav.read}>
-        📖 <span>{t.nav.read}</span>
+        <NavIcon name="read" />
+        <span>{t.nav.read}</span>
       </Link>
       <Link to="/shelf" className={linkClasses('/shelf')} aria-label={t.nav.shelf}>
-        📚 <span>{t.nav.shelf}</span>
+        <NavIcon name="shelf" />
+        <span>{t.nav.shelf}</span>
       </Link>
       <Link to="/loans" className={linkClasses('/loans')} aria-label={t.nav.loans}>
-        🤝 <span>{t.nav.loans}</span>
+        <NavIcon name="loans" />
+        <span>{t.nav.loans}</span>
       </Link>
       <Link to="/profile" className={linkClasses('/profile')} aria-label={t.nav.profile}>
-        👤 <span>{t.nav.profile}</span>
+        <NavIcon name="profile" />
+        <span>{t.nav.profile}</span>
       </Link>
       {isAdmin && (
         <Link to="/admin/users" className={linkClasses('/admin/users')} aria-label={t.nav.users}>
-          👥 <span>{t.nav.users}</span>
+          <NavIcon name="users" />
+          <span>{t.nav.users}</span>
         </Link>
       )}
     </>

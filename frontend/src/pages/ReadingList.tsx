@@ -20,6 +20,10 @@ const PAGE_SIZE = 20;
 const selectClasses =
   'rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500';
 
+// Edit and delete share one box: a link and a button line up, and the mobile 44px button minimum (App.css)
+// doesn't push "delete" below "edit" or stretch the card
+const entryActionClasses = 'inline-flex min-h-0 min-w-0 items-center py-1 font-medium';
+
 function excerpt(text: string | null, max = 140): string {
   if (!text) return '';
   return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
@@ -164,9 +168,9 @@ export function ReadingList() {
 
       {data && data.items.length > 0 && (
         <>
-          <ul className="grid gap-3 md:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {data.items.map((entry) => (
-              <li key={entry.id} className="flex gap-3 rounded-lg bg-white p-4 shadow-sm">
+              <li key={entry.id} className="flex min-w-0 gap-3 rounded-lg bg-white p-4 pb-3 shadow-sm">
                 <BookCover title={entry.book.title} coverUrl={entry.book.coverUrl} size="md" />
                 <div className="min-w-0 flex-1">
                   <Link to={`/books/${entry.book.id}`} className="block truncate font-semibold text-gray-900 hover:text-blue-700">
@@ -178,11 +182,15 @@ export function ReadingList() {
                     <RatingStars value={entry.rating} size="sm" />
                   </div>
                   {entry.review && <p className="mt-1 text-sm text-gray-700">{excerpt(entry.review)}</p>}
-                  <div className="mt-2 flex gap-3 text-sm">
-                    <Link to={`/read/${entry.id}/edit`} className="font-medium text-blue-600 hover:text-blue-700">
+                  <div className="mt-1 flex items-center gap-5 text-sm">
+                    <Link to={`/read/${entry.id}/edit`} className={`${entryActionClasses} text-blue-600 hover:text-blue-700`}>
                       {t.common.edit}
                     </Link>
-                    <button type="button" onClick={() => setToDelete(entry)} className="font-medium text-red-600 hover:text-red-700">
+                    <button
+                      type="button"
+                      onClick={() => setToDelete(entry)}
+                      className={`${entryActionClasses} text-red-600 hover:text-red-700`}
+                    >
                       {t.common.delete}
                     </button>
                   </div>

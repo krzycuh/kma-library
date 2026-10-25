@@ -38,6 +38,24 @@ function StatTile({ label, value, hint, hintClassName = 'text-gray-500', to }: S
   return <div className={classes}>{content}</div>;
 }
 
+/** Clickable list row: the hover background reaches past the cover, so it frames the row instead of clipping it */
+const listRowClasses =
+  '-mx-2 flex items-center gap-3 rounded-md px-2 py-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500';
+
+/** "See all" link next to a section heading; the short label keeps it on one line on phones */
+function SeeAllLink({ to, label }: { to: string; label: string }) {
+  return (
+    <Link
+      to={to}
+      aria-label={label}
+      className="shrink-0 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-700"
+    >
+      <span className="sm:hidden">{t.dashboard.seeAll}</span>
+      <span className="hidden sm:inline">{label}</span> →
+    </Link>
+  );
+}
+
 /**
  * Home dashboard: reading stats, shelf counts, recent reads and active loans.
  */
@@ -110,15 +128,13 @@ export function Dashboard() {
             />
           </div>
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <section className="rounded-lg bg-white p-4 shadow-sm sm:p-5" aria-labelledby="recent-reads-heading">
-              <div className="mb-3 flex items-center justify-between">
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <section className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5" aria-labelledby="recent-reads-heading">
+              <div className="mb-3 flex items-baseline justify-between gap-3">
                 <h2 id="recent-reads-heading" className="text-lg font-semibold text-gray-900">
                   {t.dashboard.recentReads}
                 </h2>
-                <Link to="/read" className="text-sm font-medium text-blue-600 hover:text-blue-700">
-                  {t.dashboard.seeAllRead} →
-                </Link>
+                <SeeAllLink to="/read" label={t.dashboard.seeAllRead} />
               </div>
               {data.recentReadingEntries.length === 0 ? (
                 <p className="py-6 text-center text-sm text-gray-500">{t.dashboard.emptyReads}</p>
@@ -128,7 +144,7 @@ export function Dashboard() {
                     <li key={entry.id}>
                       <Link
                         to={`/books/${entry.book.id}`}
-                        className="flex items-center gap-3 py-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                        className={listRowClasses}
                       >
                         <BookCover title={entry.book.title} coverUrl={entry.book.coverUrl} size="sm" />
                         <div className="min-w-0 flex-1">
@@ -144,14 +160,12 @@ export function Dashboard() {
               )}
             </section>
 
-            <section className="rounded-lg bg-white p-4 shadow-sm sm:p-5" aria-labelledby="active-loans-heading">
-              <div className="mb-3 flex items-center justify-between">
+            <section className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5" aria-labelledby="active-loans-heading">
+              <div className="mb-3 flex items-baseline justify-between gap-3">
                 <h2 id="active-loans-heading" className="text-lg font-semibold text-gray-900">
                   {t.dashboard.activeLoans}
                 </h2>
-                <Link to="/loans" className="text-sm font-medium text-blue-600 hover:text-blue-700">
-                  {t.dashboard.seeAllLoans} →
-                </Link>
+                <SeeAllLink to="/loans" label={t.dashboard.seeAllLoans} />
               </div>
               {data.activeLoans.length === 0 ? (
                 <p className="py-6 text-center text-sm text-gray-500">{t.dashboard.emptyLoans}</p>
@@ -161,7 +175,7 @@ export function Dashboard() {
                     <li key={item.id}>
                       <Link
                         to={`/shelf/${item.id}`}
-                        className="flex items-center gap-3 py-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                        className={listRowClasses}
                       >
                         <BookCover title={item.book.title} coverUrl={item.book.coverUrl} size="sm" />
                         <div className="min-w-0 flex-1">
