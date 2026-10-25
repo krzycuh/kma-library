@@ -8,6 +8,7 @@ import { formatAuthors } from '../utils/format';
 import { toIsbn13 } from '../utils/isbn';
 import { isbnLookupErrorMessage } from '../utils/isbnLookup';
 import { BarcodeScanner } from './BarcodeScanner';
+import { CoverUrlInput } from './CoverUrlInput';
 
 interface BookPickerProps {
   value: BookPickerValue;
@@ -220,6 +221,13 @@ export function BookPicker({ value, onChange, disabled = false, showIsbn = true 
               )}
             </div>
           )}
+          <CoverUrlInput
+            id="book-cover"
+            value={value.coverUrl}
+            onChange={(coverUrl) => onChange({ ...value, coverUrl })}
+            disabled={disabled}
+            inputClassName={inputClasses}
+          />
         </>
       )}
     </div>

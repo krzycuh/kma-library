@@ -21,6 +21,8 @@ import { ConfirmationModal } from '../components/ConfirmationModal';
 import { formatAuthors, formatDate, formatFinishedPeriod } from '../utils/format';
 import { getApiErrorMessage } from '../utils/apiError';
 import { isValidIsbn } from '../utils/isbn';
+import { coverUrlError } from '../utils/coverUrl';
+import { CoverUrlInput } from '../components/CoverUrlInput';
 
 const inputClasses =
   'mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-base text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500';
@@ -68,6 +70,8 @@ function BookEditForm({ book }: { book: Book }) {
     if (!title.trim()) return setFormError(t.book.titleRequired);
     if (!authors.trim()) return setFormError(t.book.authorsRequired);
     if (isbn.trim() && !isValidIsbn(isbn)) return setFormError(t.book.invalidIsbn);
+    const coverError = coverUrlError(coverUrl);
+    if (coverError) return setFormError(coverError);
     setFormError(null);
     mutation.mutate();
   };
@@ -108,12 +112,7 @@ function BookEditForm({ book }: { book: Book }) {
           />
         </div>
       </div>
-      <div>
-        <label htmlFor="edit-cover" className="block text-sm font-medium text-gray-700">
-          {t.book.coverUrl}
-        </label>
-        <input id="edit-cover" type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} className={inputClasses} />
-      </div>
+      <CoverUrlInput id="edit-cover" value={coverUrl} onChange={setCoverUrl} inputClassName={`${inputClasses} mt-0`} />
       {formError && (
         <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
           {formError}

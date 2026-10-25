@@ -48,6 +48,8 @@ data class BookReference(
     @field:Size(max = 20, message = "ISBN cannot exceed 20 characters")
     val isbn: String? = null,
     val publishedYear: Int? = null,
+    @field:Size(max = 500, message = "Cover URL cannot exceed 500 characters")
+    val coverUrl: String? = null,
 )
 
 data class CreateBookRequest(
@@ -60,6 +62,8 @@ data class CreateBookRequest(
     @field:Size(max = 20, message = "ISBN cannot exceed 20 characters")
     val isbn: String? = null,
     val publishedYear: Int? = null,
+    @field:Size(max = 500, message = "Cover URL cannot exceed 500 characters")
+    val coverUrl: String? = null,
 )
 
 data class UpdateBookRequest(

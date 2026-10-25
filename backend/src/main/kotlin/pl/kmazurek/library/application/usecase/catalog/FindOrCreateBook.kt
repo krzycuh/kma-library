@@ -7,6 +7,7 @@ import pl.kmazurek.library.domain.model.catalog.Book
 import pl.kmazurek.library.domain.model.catalog.BookId
 import pl.kmazurek.library.domain.model.catalog.BookSource
 import pl.kmazurek.library.domain.model.catalog.BookTitle
+import pl.kmazurek.library.domain.model.catalog.CoverUrl
 import pl.kmazurek.library.domain.model.catalog.Isbn
 import pl.kmazurek.library.domain.model.user.UserId
 import pl.kmazurek.library.domain.repository.BookRepository
@@ -18,6 +19,7 @@ data class FindOrCreateBookCommand(
     val isbn: String? = null,
     val publishedYear: Int? = null,
     val createdBy: UserId,
+    val coverUrl: String? = null,
 )
 
 /**
@@ -49,6 +51,7 @@ class FindOrCreateBook(
                 authors = authors,
                 isbn = command.isbn?.takeIf { it.isNotBlank() }?.let { Isbn.parse(it) },
                 publishedYear = command.publishedYear,
+                coverUrl = CoverUrl.parseOrNull(command.coverUrl),
             ),
             createdBy = command.createdBy,
         )
@@ -66,13 +69,8 @@ class FindOrCreateBook(
 
         val key = BookDeduplicationKey.of(draft.title, draft.authors)
         bookRepository.findByNormalizedKey(key)?.let { existing ->
-            // Enrich an existing entry with data we did not know before (ISBN only if it has none)
-            val enriched =
-                if (existing.isbn == null && draft.isbn != null) {
-                    existing.fillGapsFrom(draft.isbn, draft.publishedYear, draft.coverUrl, draft.source, draft.externalId)
-                } else {
-                    existing
-                }
+            // Enrich an existing entry with data it lacks (ISBN, year, cover); nothing it has is overwritten
+            val enriched = existing.fillGapsFrom(draft.isbn, draft.publishedYear, draft.coverUrl, draft.source, draft.externalId)
             return if (enriched === existing) existing else bookRepository.save(enriched)
         }
 
@@ -109,6 +107,7 @@ class FindOrCreateBook(
                 authors = authors,
                 isbn = reference.isbn,
                 publishedYear = reference.publishedYear,
+                coverUrl = reference.coverUrl,
                 createdBy = requestedBy,
             ),
         )

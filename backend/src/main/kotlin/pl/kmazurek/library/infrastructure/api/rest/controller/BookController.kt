@@ -83,6 +83,7 @@ class BookController(
                     authors = request.authors,
                     isbn = request.isbn,
                     publishedYear = request.publishedYear,
+                    coverUrl = request.coverUrl,
                     createdBy = authentication.userId(),
                 ),
             )

@@ -21,6 +21,7 @@ export interface BookReference {
   authors?: string;
   isbn?: string;
   publishedYear?: number | null;
+  coverUrl?: string;
 }
 
 export interface CreateBookRequest {
