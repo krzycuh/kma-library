@@ -114,6 +114,7 @@ export const pl = {
     addRead: '+ Przeczytana książka',
     addShelf: '+ Książka na półkę',
     addByIsbn: '📷 Skanuj ISBN',
+    seeAll: 'Wszystkie',
     seeAllRead: 'Wszystkie przeczytane',
     seeAllLoans: 'Wszystkie pożyczone',
     emptyReads: 'Nie masz jeszcze żadnych przeczytanych książek.',

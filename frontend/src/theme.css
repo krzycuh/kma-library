@@ -95,6 +95,15 @@ html.dark .bg-blue-600 {
   --tw-shadow: 0 0 16px rgb(232 121 249 / 0.4);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
+/* Navigation line icons: neon tubes in the accent color, brighter on the active entry */
+html.dark .nav-icon {
+  color: rgb(var(--c-blue-600));
+  filter: drop-shadow(0 0 3px rgb(232 121 249 / 0.65));
+}
+html.dark .bg-blue-100 > .nav-icon {
+  color: rgb(var(--c-blue-800));
+  filter: drop-shadow(0 0 5px rgb(232 121 249 / 0.9));
+}
 html.dark .logo-glow {
   text-shadow: 0 0 12px rgb(232 121 249 / 0.6);
 }

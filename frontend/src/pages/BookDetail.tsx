@@ -382,7 +382,7 @@ export function BookDetail() {
               <li key={item.id}>
                 <Link
                   to={`/shelf/${item.id}`}
-                  className="flex items-center justify-between gap-3 py-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                  className="-mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <div className="min-w-0 text-sm text-gray-700">
                     {item.acquiredOn ? `${t.shelf.acquiredOn}: ${formatDate(item.acquiredOn)}` : t.shelf.itemTitle}

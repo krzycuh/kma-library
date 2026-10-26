@@ -10,6 +10,7 @@ import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { Pagination } from '../components/Pagination';
 import { BookCover } from '../components/BookCover';
 import { ShelfItemStatusBadge } from '../components/ShelfItemStatusBadge';
+import { NavIcon } from '../components/NavIcon';
 import { useCurrentLibrary } from '../hooks/useLibraries';
 import { t } from '../i18n';
 import type { ShelfItemStatus } from '../types/shelf';
@@ -67,7 +68,8 @@ export function Shelf() {
               to="/shelf/members"
               className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              <span aria-hidden="true">👥</span>&nbsp;{t.members.link}
+              <NavIcon name="users" className="mr-1.5 h-4 w-4" />
+              {t.members.link}
             </Link>
             <Link
               to="/shelf/new"
