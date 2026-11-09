@@ -7,6 +7,7 @@ import { PageHeader } from '../components/PageHeader';
 import { BookCover } from '../components/BookCover';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { BarcodeScanner } from '../components/BarcodeScanner';
+import { NavIcon } from '../components/NavIcon';
 import { useToast } from '../hooks/useToast';
 import { t } from '../i18n';
 import { formatAuthors } from '../utils/format';
@@ -121,7 +122,8 @@ export function IsbnLookup() {
           aria-label={t.scanner.openLabel}
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-blue-600 bg-white px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          <span aria-hidden="true">📷</span> {t.scanner.open}
+          <NavIcon name="camera" />
+          {t.scanner.open}
         </button>
         {inputError && (
           <p id="isbn-input-error" className="mt-2 text-sm text-red-700" role="alert">

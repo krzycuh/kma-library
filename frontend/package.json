@@ -12,7 +12,8 @@
     "test": "vitest --config vitest.config.ts",
     "test:ui": "vitest --ui --config vitest.config.ts",
     "test:coverage": "vitest --coverage --config vitest.config.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

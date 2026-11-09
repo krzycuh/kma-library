@@ -8,6 +8,7 @@ import { formatAuthors } from '../utils/format';
 import { toIsbn13 } from '../utils/isbn';
 import { isbnLookupErrorMessage } from '../utils/isbnLookup';
 import { BarcodeScanner } from './BarcodeScanner';
+import { NavIcon } from './NavIcon';
 import { CoverUrlInput } from './CoverUrlInput';
 
 interface BookPickerProps {
@@ -191,9 +192,9 @@ export function BookPicker({ value, onChange, disabled = false, showIsbn = true 
                   disabled={disabled || isbnMutation.isPending}
                   aria-label={t.scanner.openLabel}
                   title={t.scanner.openLabel}
-                  className="flex-shrink-0 rounded-lg border border-blue-600 bg-white px-3 py-2 text-base hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex flex-shrink-0 items-center rounded-lg border border-blue-600 bg-white px-3 py-2 text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <span aria-hidden="true">📷</span>
+                  <NavIcon name="camera" />
                 </button>
                 <button
                   type="button"
