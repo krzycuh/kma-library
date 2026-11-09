@@ -139,27 +139,25 @@ export function Shelf() {
             {itemsQuery.data?.items.map((item) => {
               const overdue = item.activeLoan?.overdue ?? false;
               return (
-                <li key={item.id} className="rounded-lg bg-white p-4 shadow-sm">
-                  <div className="flex gap-3">
-                    <BookCover title={item.book.title} coverUrl={item.book.coverUrl} />
-                    <div className="min-w-0 flex-1">
-                      <Link
-                        to={`/shelf/${item.id}`}
-                        className="block truncate font-semibold text-gray-900 hover:text-blue-700"
-                      >
-                        {item.book.title}
-                      </Link>
-                      <p className="truncate text-sm text-gray-600">{formatAuthors(item.book.authors)}</p>
-                      <div className="mt-2">
-                        <ShelfItemStatusBadge status={item.status} overdue={overdue} />
-                      </div>
-                      {item.activeLoan && (
-                        <p className="mt-1 text-sm text-gray-700">
-                          {t.shelf.lentTo(`${item.activeLoan.borrowerFirstName} ${item.activeLoan.borrowerLastName}`)}{' '}
-                          <span className="text-gray-500">{t.shelf.lentSince(formatDate(item.activeLoan.lentOn))}</span>
-                        </p>
-                      )}
+                <li key={item.id} className="flex min-w-0 gap-3 overflow-hidden rounded-lg bg-white shadow-sm">
+                  <BookCover title={item.book.title} coverUrl={item.book.coverUrl} size="fill" />
+                  <div className="min-w-0 flex-1 py-2 pr-3">
+                    <Link
+                      to={`/shelf/${item.id}`}
+                      className="block truncate font-semibold text-gray-900 hover:text-blue-700"
+                    >
+                      {item.book.title}
+                    </Link>
+                    <p className="truncate text-sm text-gray-600">{formatAuthors(item.book.authors)}</p>
+                    <div className="mt-1">
+                      <ShelfItemStatusBadge status={item.status} overdue={overdue} />
                     </div>
+                    {item.activeLoan && (
+                      <p className="mt-1 text-sm text-gray-700">
+                        {t.shelf.lentTo(`${item.activeLoan.borrowerFirstName} ${item.activeLoan.borrowerLastName}`)}{' '}
+                        <span className="text-gray-500">{t.shelf.lentSince(formatDate(item.activeLoan.lentOn))}</span>
+                      </p>
+                    )}
                   </div>
                 </li>
               );

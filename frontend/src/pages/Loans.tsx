@@ -83,37 +83,33 @@ export function Loans() {
             return (
               <li
                 key={item.id}
-                className={`rounded-lg bg-white p-4 shadow-sm ${overdue ? 'border-l-4 border-red-500' : ''}`}
+                className={`flex gap-3 overflow-hidden rounded-lg bg-white shadow-sm ${overdue ? 'border-l-4 border-red-500' : ''}`}
               >
-                <div className="flex gap-3">
-                  <BookCover title={item.book.title} coverUrl={item.book.coverUrl} size="sm" />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-gray-900">
-                      {loan.borrowerFirstName} {loan.borrowerLastName}
-                      {overdue && (
-                        <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
-                          {t.shelf.overdue}
-                        </span>
-                      )}
-                    </p>
-                    <Link to={`/shelf/${item.id}`} className="block truncate text-gray-800 hover:text-blue-700">
-                      {item.book.title}
-                    </Link>
-                    <p className="truncate text-sm text-gray-600">{formatAuthors(item.book.authors)}</p>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {t.shelf.lentSince(formatDate(loan.lentOn))}
-                      {loan.dueOn && ` · ${t.shelf.due(formatDate(loan.dueOn))}`}
-                    </p>
-                  </div>
-                  <div className="flex items-start">
-                    <button
-                      type="button"
-                      onClick={() => setReturning(item)}
-                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      {t.shelf.returnItem}
-                    </button>
-                  </div>
+                <BookCover title={item.book.title} coverUrl={item.book.coverUrl} size="fill" />
+                <div className="min-w-0 flex-1 py-2 pr-3">
+                  <p className="font-semibold text-gray-900">
+                    {loan.borrowerFirstName} {loan.borrowerLastName}
+                    {overdue && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+                        {t.shelf.overdue}
+                      </span>
+                    )}
+                  </p>
+                  <Link to={`/shelf/${item.id}`} className="block truncate text-gray-800 hover:text-blue-700">
+                    {item.book.title}
+                  </Link>
+                  <p className="truncate text-sm text-gray-600">{formatAuthors(item.book.authors)}</p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {t.shelf.lentSince(formatDate(loan.lentOn))}
+                    {loan.dueOn && ` · ${t.shelf.due(formatDate(loan.dueOn))}`}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setReturning(item)}
+                    className="inline-flex min-h-0 min-w-0 items-center py-1 text-sm font-medium text-blue-600 hover:text-blue-700"
+                  >
+                    {t.shelf.returnItem}
+                  </button>
                 </div>
               </li>
             );
