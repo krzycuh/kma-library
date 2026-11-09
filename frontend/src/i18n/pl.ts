@@ -113,7 +113,7 @@ export const pl = {
     activeLoans: 'Aktualnie pożyczone',
     addRead: '+ Przeczytana książka',
     addShelf: '+ Książka na półkę',
-    addByIsbn: '📷 Skanuj ISBN',
+    addByIsbn: 'Skanuj ISBN',
     seeAll: 'Wszystkie',
     seeAllRead: 'Wszystkie przeczytane',
     seeAllLoans: 'Wszystkie pożyczone',

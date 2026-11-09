@@ -8,6 +8,7 @@ import { RatingStars } from '../components/RatingStars';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { ShelfItemStatusBadge } from '../components/ShelfItemStatusBadge';
+import { NavIcon } from '../components/NavIcon';
 import { formatAuthors, formatDate, formatFinishedPeriod, formatRating } from '../utils/format';
 import { getApiErrorMessage } from '../utils/apiError';
 
@@ -90,8 +91,9 @@ export function Dashboard() {
           </Link>
           <Link
             to="/isbn?scan=1"
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
+            <NavIcon name="camera" />
             {t.dashboard.addByIsbn}
           </Link>
         </div>

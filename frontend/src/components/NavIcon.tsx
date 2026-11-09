@@ -1,4 +1,4 @@
-export type NavIconName = 'read' | 'shelf' | 'loans' | 'profile' | 'users';
+export type NavIconName = 'read' | 'shelf' | 'loans' | 'profile' | 'users' | 'camera';
 
 // Outline icons drawn on a 24px grid with a 1.75px stroke; the shelf echoes the three books of the logo
 const paths: Record<NavIconName, string[]> = {
@@ -16,10 +16,15 @@ const paths: Record<NavIconName, string[]> = {
     'M15.75 5.4a2.75 2.75 0 1 1 0 5.2',
     'M17.25 13.6a5.25 5.25 0 0 1 3.75 5.15',
   ],
+  camera: [
+    'M9.6 4.75h4.8a1.5 1.5 0 0 1 1.25.67l1.1 1.66a.75.75 0 0 0 .62.34h2.38a1.5 1.5 0 0 1 1.5 1.5v8.83a1.5 1.5 0 0 1-1.5 1.5H4.25a1.5 1.5 0 0 1-1.5-1.5V8.92a1.5 1.5 0 0 1 1.5-1.5h2.38a.75.75 0 0 0 .62-.34l1.1-1.66a1.5 1.5 0 0 1 1.25-.67Z',
+    'M15.25 12.75a3.25 3.25 0 1 1-6.5 0 3.25 3.25 0 0 1 6.5 0Z',
+  ],
 };
 
 /**
- * Line icon for a main navigation entry. Strokes in the current text color; the neon theme adds a glow (theme.css).
+ * Line icon for a main navigation entry or an action button (camera = scan an ISBN barcode).
+ * Strokes in the current text color; the neon theme adds a glow (theme.css).
  */
 export function NavIcon({ name, className = 'h-5 w-5' }: { name: NavIconName; className?: string }) {
   return (
