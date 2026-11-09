@@ -86,7 +86,7 @@ export function Loans() {
                 className={`flex gap-3 overflow-hidden rounded-lg bg-white shadow-sm ${overdue ? 'border-l-4 border-red-500' : ''}`}
               >
                 <BookCover title={item.book.title} coverUrl={item.book.coverUrl} size="fill" />
-                <div className="min-w-0 flex-1 py-2">
+                <div className="min-w-0 flex-1 py-2 pr-3">
                   <p className="font-semibold text-gray-900">
                     {loan.borrowerFirstName} {loan.borrowerLastName}
                     {overdue && (
@@ -103,12 +103,10 @@ export function Loans() {
                     {t.shelf.lentSince(formatDate(loan.lentOn))}
                     {loan.dueOn && ` · ${t.shelf.due(formatDate(loan.dueOn))}`}
                   </p>
-                </div>
-                <div className="flex items-start py-2 pr-3">
                   <button
                     type="button"
                     onClick={() => setReturning(item)}
-                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="inline-flex min-h-0 min-w-0 items-center py-1 text-sm font-medium text-blue-600 hover:text-blue-700"
                   >
                     {t.shelf.returnItem}
                   </button>
