@@ -1,7 +1,8 @@
 # 🔧 Wdrożenie produkcyjne (Raspberry Pi)
 
-Obrazy budowane są przez GitHub Actions (`.github/workflows/deploy-production.yml`) po opublikowaniu release'a
-(tag `vX.Y.Z`) lub ręcznie (`workflow_dispatch`). Obrazy trafiają do GHCR:
+Obrazy budowane są przez GitHub Actions (`.github/workflows/deploy-production.yml`) automatycznie po każdym merge'u
+do `main`, który zmienia `backend/` lub `frontend/` (tag `main`), po opublikowaniu release'a (tag `vX.Y.Z`) lub ręcznie
+(`workflow_dispatch`). Testy nie są tu powtarzane: uruchamia je CI na każdym PR. Obrazy trafiają do GHCR:
 
 - `ghcr.io/krzycuh/kma-library/backend:<tag>`
 - `ghcr.io/krzycuh/kma-library/frontend:<tag>`
