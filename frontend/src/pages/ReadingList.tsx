@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { readingEntriesApi } from '../api/readingEntries';
@@ -13,6 +13,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { useToast } from '../hooks/useToast';
+import { useDebouncedSearchInput, useListSearchParams } from '../hooks/useListSearchParams';
 import { formatAuthors, formatFinishedPeriod } from '../utils/format';
 import { getApiErrorMessage } from '../utils/apiError';
 
@@ -37,20 +38,12 @@ export function ReadingList() {
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const [searchInput, setSearchInput] = useState('');
-  const [search, setSearch] = useState('');
-  const [year, setYear] = useState<number | undefined>(undefined);
-  const [rating, setRating] = useState<number | undefined>(undefined);
-  const [page, setPage] = useState(0);
+  const { get, getNumber, page, setFilters, setPage } = useListSearchParams();
+  const search = get('q') ?? '';
+  const year = getNumber('year');
+  const rating = getNumber('rating');
+  const [searchInput, setSearchInput] = useDebouncedSearchInput(search, (q) => setFilters({ q }));
   const [toDelete, setToDelete] = useState<ReadingEntry | null>(null);
-
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      setSearch(searchInput.trim());
-      setPage(0);
-    }, 300);
-    return () => clearTimeout(handle);
-  }, [searchInput]);
 
   const params = { search: search || undefined, year, rating, page, pageSize: PAGE_SIZE };
 
@@ -117,8 +110,7 @@ export function ReadingList() {
               id="reading-year"
               value={year ?? ''}
               onChange={(e) => {
-                setYear(e.target.value ? Number(e.target.value) : undefined);
-                setPage(0);
+                setFilters({ year: e.target.value });
               }}
               className={selectClasses}
             >
@@ -138,8 +130,7 @@ export function ReadingList() {
               id="reading-rating"
               value={rating ?? ''}
               onChange={(e) => {
-                setRating(e.target.value ? Number(e.target.value) : undefined);
-                setPage(0);
+                setFilters({ rating: e.target.value });
               }}
               className={selectClasses}
             >

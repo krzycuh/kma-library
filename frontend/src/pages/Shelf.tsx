@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { librariesApi } from '../api/libraries';
@@ -12,6 +11,7 @@ import { BookCover } from '../components/BookCover';
 import { ShelfItemStatusBadge } from '../components/ShelfItemStatusBadge';
 import { NavIcon } from '../components/NavIcon';
 import { useCurrentLibrary } from '../hooks/useLibraries';
+import { useDebouncedSearchInput, useListSearchParams } from '../hooks/useListSearchParams';
 import { t } from '../i18n';
 import type { ShelfItemStatus } from '../types/shelf';
 import { formatAuthors, formatDate } from '../utils/format';
@@ -32,19 +32,12 @@ const PAGE_SIZE = 20;
 export function Shelf() {
   const navigate = useNavigate();
   const { library, isLoading: libraryLoading, isError: libraryError } = useCurrentLibrary();
-  const [tab, setTab] = useState<Tab>('ALL');
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [page, setPage] = useState(0);
-
-  useEffect(() => {
-    const handle = setTimeout(() => setDebouncedSearch(search.trim()), 300);
-    return () => clearTimeout(handle);
-  }, [search]);
-
-  useEffect(() => {
-    setPage(0);
-  }, [tab, debouncedSearch]);
+  const { get, page, setFilters, setPage } = useListSearchParams();
+  const statusParam = get('status');
+  const tab: Tab = tabs.some((item) => item.key === statusParam) ? (statusParam as Tab) : 'ALL';
+  const debouncedSearch = get('q') ?? '';
+  const [search, setSearch] = useDebouncedSearchInput(debouncedSearch, (q) => setFilters({ q }));
+  const setTab = (key: Tab) => setFilters({ status: key === 'ALL' ? undefined : key });
 
   const status: ShelfItemStatus | undefined = tab === 'ALL' ? undefined : tab;
   const params = { status, search: debouncedSearch || undefined, page, pageSize: PAGE_SIZE };
