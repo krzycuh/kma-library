@@ -1,14 +1,22 @@
 name: Deploy to Production
 
+# Every merge to main publishes the :main images used by docker-compose.prod.yml.
+# Tests are not repeated here: PR CI already ran them on the merge result.
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/deploy-production.yml'
   release:
     types: [published]
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to deploy'
-        required: true
-        default: 'main'
+
+# A newer push cancels an older build, so :main never ends up older than the branch
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io

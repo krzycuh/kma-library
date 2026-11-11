@@ -65,4 +65,4 @@ Aplikacja ntfy → **+** → temat `kma-builds` → *Use another server* → `ht
 
 ## 4. Test
 
-GitHub → **Actions** → **Deploy to Production** → **Run workflow** (gałąź `main`). Po kilku minutach powinno przyjść „KMA Library: obrazy gotowe”. Jeśli nie, otwórz job **Notify** → krok **Send ntfy notification**: jest tam „Notification sent”, „ntfy is not configured” (brak sekretów) albo ostrzeżenie z kodem HTTP.
+Zmerguj PR do `main` albo uruchom ręcznie: GitHub → **Actions** → **Deploy to Production** → **Run workflow** (gałąź `main`). Po kilku minutach powinno przyjść „KMA Library: obrazy gotowe”. Jeśli nie, otwórz job **Notify** → krok **Send ntfy notification**: jest tam „Notification sent”, „ntfy is not configured” (brak sekretów) albo ostrzeżenie z kodem HTTP.
