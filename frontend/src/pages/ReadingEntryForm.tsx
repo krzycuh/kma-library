@@ -92,8 +92,7 @@ export function ReadingEntryForm() {
     onSuccess: () => {
       invalidate();
       toast.success(isEdit ? t.reading.updated : t.reading.created);
-      // After an edit go back to the same filtered page; a new entry is easiest to spot on the plain list.
-      navigate(isEdit ? listUrl('/read') : '/read');
+      navigate(listUrl('/read'));
     },
     onError: (err) => toast.error(getApiErrorMessage(err)),
   });
