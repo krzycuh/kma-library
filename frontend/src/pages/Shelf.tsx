@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { librariesApi } from '../api/libraries';
@@ -32,7 +33,7 @@ const PAGE_SIZE = 20;
 export function Shelf() {
   const navigate = useNavigate();
   const { library, isLoading: libraryLoading, isError: libraryError } = useCurrentLibrary();
-  const { get, page, setFilters, setPage } = useListSearchParams();
+  const { get, page, setFilters, setPage, clampPage } = useListSearchParams();
   const statusParam = get('status');
   const tab: Tab = tabs.some((item) => item.key === statusParam) ? (statusParam as Tab) : 'ALL';
   const debouncedSearch = get('q') ?? '';
@@ -47,6 +48,9 @@ export function Shelf() {
     queryFn: () => librariesApi.items(library!.id, params),
     enabled: !!library,
   });
+
+  const totalPages = itemsQuery.data?.totalPages;
+  useEffect(() => clampPage(totalPages), [clampPage, totalPages]);
 
   const hasFilters = tab !== 'ALL' || debouncedSearch.length > 0;
 

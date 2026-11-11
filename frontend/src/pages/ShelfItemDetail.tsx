@@ -14,6 +14,7 @@ import { t } from '../i18n';
 import type { LendShelfItemRequest, ShelfItem, ShelfItemStatus } from '../types/shelf';
 import { formatAuthors, formatDate } from '../utils/format';
 import { getApiErrorMessage } from '../utils/apiError';
+import { listUrl } from '../utils/listUrl';
 
 const inputClasses =
   'mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500';
@@ -108,7 +109,7 @@ export function ShelfItemDetail() {
       queryClient.removeQueries({ queryKey: ['shelf-item', id] });
       invalidate();
       toast.success(t.shelf.removed);
-      navigate('/shelf');
+      navigate(listUrl('/shelf'));
     },
     onError: (err) => toast.error(getApiErrorMessage(err)),
   });
@@ -125,7 +126,7 @@ export function ShelfItemDetail() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title={t.shelf.itemTitle} backTo="/shelf" backLabel={t.shelf.title} />
+      <PageHeader title={t.shelf.itemTitle} backTo={listUrl('/shelf')} backLabel={t.shelf.title} />
 
       <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
         <div className="flex gap-4">

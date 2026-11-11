@@ -21,6 +21,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useToast } from '../hooks/useToast';
 import { currentYear } from '../utils/format';
 import { getApiErrorMessage } from '../utils/apiError';
+import { listUrl } from '../utils/listUrl';
 
 /**
  * Create (/read/new, optional ?bookId=) or edit (/read/:id/edit) a reading entry.
@@ -91,7 +92,8 @@ export function ReadingEntryForm() {
     onSuccess: () => {
       invalidate();
       toast.success(isEdit ? t.reading.updated : t.reading.created);
-      navigate('/read');
+      // After an edit go back to the same filtered page; a new entry is easiest to spot on the plain list.
+      navigate(isEdit ? listUrl('/read') : '/read');
     },
     onError: (err) => toast.error(getApiErrorMessage(err)),
   });
@@ -116,7 +118,7 @@ export function ReadingEntryForm() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title={isEdit ? t.reading.editTitle : t.reading.addTitle} backTo="/read" backLabel={t.nav.read} />
+      <PageHeader title={isEdit ? t.reading.editTitle : t.reading.addTitle} backTo={listUrl('/read')} backLabel={t.nav.read} />
 
       <form onSubmit={onSubmit} className="space-y-6 rounded-lg bg-white p-4 shadow-sm sm:p-6" noValidate>
         <BookPicker value={picker} onChange={setPicker} disabled={isEdit} />

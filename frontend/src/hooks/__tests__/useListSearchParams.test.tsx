@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { beforeEach, describe, it, expect } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useListSearchParams } from '../useListSearchParams';
+import { listUrl } from '../../utils/listUrl';
 
 function setup(initialUrl: string) {
   const wrapper = ({ children }: { children: ReactNode }) => (
@@ -12,6 +13,8 @@ function setup(initialUrl: string) {
 }
 
 describe('useListSearchParams', () => {
+  beforeEach(() => sessionStorage.clear());
+
   it('reads filters and a 1-based page from the URL', () => {
     const { result } = setup('/read?q=lem&year=2024&page=3');
     expect(result.current.list.get('q')).toBe('lem');
@@ -37,5 +40,23 @@ describe('useListSearchParams', () => {
     expect(result.current.location.search).toBe('?status=LENT&page=2');
     act(() => result.current.list.setPage(0));
     expect(result.current.location.search).toBe('?status=LENT');
+  });
+
+  it('remembers the list URL for links back from other pages', () => {
+    const { result } = setup('/read?year=2024');
+    expect(listUrl('/read')).toBe('/read?year=2024');
+    act(() => result.current.list.setPage(2));
+    expect(listUrl('/read')).toBe('/read?year=2024&page=3');
+    act(() => result.current.list.setFilters({ year: undefined }));
+    expect(listUrl('/read')).toBe('/read');
+    expect(listUrl('/shelf')).toBe('/shelf');
+  });
+
+  it('moves a page past the end to the last existing page', () => {
+    const { result } = setup('/shelf?page=5');
+    act(() => result.current.list.clampPage(2));
+    expect(result.current.location.search).toBe('?page=2');
+    act(() => result.current.list.clampPage(0));
+    expect(result.current.location.search).toBe('?page=2');
   });
 });

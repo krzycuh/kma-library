@@ -1,15 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { rememberListUrl } from '../utils/listUrl';
 
 type ParamValue = string | number | undefined | null;
 
 /**
  * List filters and pagination kept in the URL query string, so a refresh or coming back
  * from a detail page restores the same view. The page is 1-based in the URL ("?page=2")
- * and 0-based for the API; page 1 and empty filters are left out of the URL.
+ * and 0-based for the API; page 1 and empty filters are left out of the URL. The last query
+ * string is also remembered per tab (see listUrl), for links back to the list from other pages.
  */
 export function useListSearchParams() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    rememberListUrl(pathname, search);
+  }, [pathname, search]);
 
   const get = useCallback((key: string): string | undefined => searchParams.get(key) || undefined, [searchParams]);
 
@@ -46,18 +53,29 @@ export function useListSearchParams() {
   );
 
   const setPage = useCallback(
-    (newPage: number) => {
+    (newPage: number, options?: { replace?: boolean }) => {
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
         if (newPage > 0) next.set('page', String(newPage + 1));
         else next.delete('page');
         return next;
-      });
+      }, options);
     },
     [setSearchParams],
   );
 
-  return { get, getNumber, page, setFilters, setPage };
+  /**
+   * A remembered page past the end (items deleted since) moves to the last existing page
+   * instead of showing an empty list. Pass the total from the loaded data.
+   */
+  const clampPage = useCallback(
+    (totalPages: number | undefined) => {
+      if (totalPages !== undefined && totalPages > 0 && page >= totalPages) setPage(totalPages - 1, { replace: true });
+    },
+    [page, setPage],
+  );
+
+  return { get, getNumber, page, setFilters, setPage, clampPage };
 }
 
 /**
