@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { readingEntriesApi } from '../api/readingEntries';
@@ -38,7 +38,7 @@ export function ReadingList() {
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const { get, getNumber, page, setFilters, setPage } = useListSearchParams();
+  const { get, getNumber, page, setFilters, setPage, clampPage } = useListSearchParams();
   const search = get('q') ?? '';
   const year = getNumber('year');
   const rating = getNumber('rating');
@@ -51,6 +51,9 @@ export function ReadingList() {
     queryKey: ['reading-entries', params],
     queryFn: () => readingEntriesApi.list(params),
   });
+
+  const totalPages = data?.totalPages;
+  useEffect(() => clampPage(totalPages), [clampPage, totalPages]);
 
   const { data: summary } = useQuery({
     queryKey: ['reading-summary', undefined],
