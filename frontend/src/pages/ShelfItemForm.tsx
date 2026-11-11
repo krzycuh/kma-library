@@ -19,6 +19,7 @@ import { useCurrentLibrary } from '../hooks/useLibraries';
 import { useToast } from '../hooks/useToast';
 import { t } from '../i18n';
 import { getApiErrorMessage } from '../utils/apiError';
+import { listUrl } from '../utils/listUrl';
 
 const inputClasses =
   'mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500';
@@ -87,7 +88,7 @@ export function ShelfItemForm() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title={t.shelf.addTitle} backTo="/shelf" backLabel={t.shelf.title} />
+      <PageHeader title={t.shelf.addTitle} backTo={listUrl('/shelf')} backLabel={t.shelf.title} />
       <form onSubmit={submit} className="space-y-5 rounded-lg bg-white p-4 shadow-sm sm:p-6">
         <LibrarySwitcher />
         <BookPicker value={picker} onChange={setPicker} />
@@ -130,7 +131,7 @@ export function ShelfItemForm() {
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
-            onClick={() => navigate('/shelf')}
+            onClick={() => navigate(listUrl('/shelf'))}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             {t.common.cancel}
