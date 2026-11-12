@@ -40,6 +40,8 @@ interface JpaReadingEntryRepository : JpaRepository<ReadingEntryJpaEntity, UUID>
 
     fun countByReaderId(readerId: UUID): Long
 
+    fun findAllByReaderId(readerId: UUID): List<ReadingEntryJpaEntity>
+
     @Query(
         """
         SELECT DISTINCT r.finishedYear FROM ReadingEntryJpaEntity r

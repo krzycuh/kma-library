@@ -4,4 +4,5 @@ export * from './book';
 export * from './reading';
 export * from './shelf';
 export * from './dashboard';
+export * from './statistics';
 export * from './admin';

@@ -230,6 +230,7 @@ Plus funkcja/trigger `update_updated_at_column()` jak w poker-stats oraz `V2__in
 | POST | `/reading-entries` | `{ book: { bookId } | { title, authors, isbn? }, finishedYear?, finishedMonth?, rating?, review? }` |
 | GET/PUT/DELETE | `/reading-entries/{id}` | |
 | GET | `/reading-entries/summary?year=` | statystyki do dashboardu |
+| GET | `/reading-entries/statistics` | statystyki czytania: per rok (liczba, średnia ocena, miesiące, pory roku, rozkład ocen, najczęściej czytani autorzy) i łącznie |
 | GET | `/libraries` | moje biblioteczki (MVP: jedna) |
 | GET | `/libraries/{id}/items?status=&search=&bookId=&page=` | półka |
 | POST | `/libraries/{id}/items` | dodaj egzemplarz |
@@ -252,6 +253,7 @@ Wszystkie listy paginowane przez `PagedResponse` (jak w poker-stats). Błędy pr
 | `/` | Dashboard: "przeczytane w tym roku", "pożyczone (N)", ostatnio dodane, skróty "+ przeczytana", "+ na półkę" |
 | `/read` | lista przeczytanych (karty: okładka/placeholder, tytuł, autor, data, gwiazdki); filtry rok/ocena; wyszukiwarka |
 | `/read/new`, `/read/:id/edit` | formularz: pole tytuł + autor z autouzupełnianiem z `/books?search=`, rok + opcjonalny miesiąc, ocena gwiazdkami, notatka |
+| `/stats?year=` | statystyki czytania: wybór okresu (wszystkie lata / rok), kafle (łącznie, średnio rocznie, najlepszy rok/miesiąc, ulubiona pora roku, średnia ocena), wykresy: książki w latach, w miesiącach, pory roku, oceny, najczęściej czytani autorzy; kafel "Przeczytane w …" na dashboardzie prowadzi tu |
 | `/shelf` | półka; zakładki: Wszystkie / Na półce / Pożyczone |
 | `/shelf/new` | dodaj egzemplarz |
 | `/shelf/:id` | karta egzemplarza: status, przycisk "Pożycz" (modal: imię, nazwisko, data, termin), "Zwrócono", historia pożyczeń, "Oznacz jako przeczytaną" |
@@ -261,7 +263,7 @@ Wszystkie listy paginowane przez `PagedResponse` (jak w poker-stats). Błędy pr
 
 Komponenty współdzielone z poker-stats (kopiowane 1:1): `AppLayout`, `Navigation`, `ProtectedRoute`, `ErrorBoundary`, `LoadingSpinner`, `LoadingSkeleton`, `EmptyState`, `ErrorMessage`, `ConfirmationModal`, `PageHeader`, `useToast`, `AuthContext`, `api/client.ts`.
 
-Nowe komponenty: `BookPicker` (autocomplete + "dodaj nową"), `RatingStars`, `YearMonthInput`, `LoanModal`, `BookCover`, `ShelfItemStatusBadge`, `Pagination`.
+Nowe komponenty: `BookPicker` (autocomplete + "dodaj nową"), `RatingStars`, `YearMonthInput`, `LoanModal`, `BookCover`, `ShelfItemStatusBadge`, `Pagination`, wykresy `charts/ColumnChart` i `charts/BarList` (czyste elementy HTML + klasy Tailwind, więc dziedziczą motyw; bez biblioteki wykresów).
 
 ---
 

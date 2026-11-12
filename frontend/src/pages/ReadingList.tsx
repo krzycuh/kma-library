@@ -68,6 +68,7 @@ export function ReadingList() {
       setToDelete(null);
       queryClient.invalidateQueries({ queryKey: ['reading-entries'] });
       queryClient.invalidateQueries({ queryKey: ['reading-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['reading-statistics'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
     onError: (err) => toast.error(getApiErrorMessage(err)),

@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.RestController
 import pl.kmazurek.library.application.dto.CreateReadingEntryRequest
 import pl.kmazurek.library.application.dto.PagedResponse
 import pl.kmazurek.library.application.dto.ReadingEntryDto
+import pl.kmazurek.library.application.dto.ReadingStatisticsDto
 import pl.kmazurek.library.application.dto.ReadingSummaryDto
 import pl.kmazurek.library.application.dto.UpdateReadingEntryRequest
 import pl.kmazurek.library.application.usecase.reading.AddReadingEntry
 import pl.kmazurek.library.application.usecase.reading.AddReadingEntryCommand
 import pl.kmazurek.library.application.usecase.reading.DeleteReadingEntry
 import pl.kmazurek.library.application.usecase.reading.GetReadingEntry
+import pl.kmazurek.library.application.usecase.reading.GetReadingStatistics
 import pl.kmazurek.library.application.usecase.reading.GetReadingSummary
 import pl.kmazurek.library.application.usecase.reading.ListReadingEntries
 import pl.kmazurek.library.application.usecase.reading.ListReadingEntriesQuery
@@ -43,6 +45,7 @@ class ReadingEntryController(
     private val getReadingEntry: GetReadingEntry,
     private val listReadingEntries: ListReadingEntries,
     private val getReadingSummary: GetReadingSummary,
+    private val getReadingStatistics: GetReadingStatistics,
     private val auditLogger: AuditLogger,
 ) {
     @GetMapping
@@ -73,6 +76,10 @@ class ReadingEntryController(
         authentication: Authentication,
         @RequestParam(required = false) year: Int?,
     ): ResponseEntity<ReadingSummaryDto> = ResponseEntity.ok(getReadingSummary.execute(authentication.userId(), year))
+
+    @GetMapping("/statistics")
+    fun statistics(authentication: Authentication): ResponseEntity<ReadingStatisticsDto> =
+        ResponseEntity.ok(getReadingStatistics.execute(authentication.userId()))
 
     @GetMapping("/{id}")
     fun get(

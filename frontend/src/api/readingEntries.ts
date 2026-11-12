@@ -7,6 +7,7 @@ import type {
   ReadingSummary,
   UpdateReadingEntryRequest,
 } from '../types/reading';
+import type { ReadingStatistics } from '../types/statistics';
 
 export const readingEntriesApi = {
   list: async (params: ReadingEntryListParams = {}): Promise<PagedResponse<ReadingEntry>> => {
@@ -16,6 +17,11 @@ export const readingEntriesApi = {
 
   summary: async (year?: number): Promise<ReadingSummary> => {
     const response = await apiClient.get<ReadingSummary>('/reading-entries/summary', { params: { year } });
+    return response.data;
+  },
+
+  statistics: async (): Promise<ReadingStatistics> => {
+    const response = await apiClient.get<ReadingStatistics>('/reading-entries/statistics');
     return response.data;
   },
 

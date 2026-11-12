@@ -58,6 +58,7 @@ function BookEditForm({ book }: { book: Book }) {
       toast.success(t.book.bookSaved);
       queryClient.invalidateQueries({ queryKey: ['book', book.id] });
       queryClient.invalidateQueries({ queryKey: ['reading-entries'] });
+      queryClient.invalidateQueries({ queryKey: ['reading-statistics'] });
       queryClient.invalidateQueries({ queryKey: ['shelf-items'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['books'] });
@@ -163,6 +164,7 @@ function MergeBookSection({ book }: { book: Book }) {
       queryClient.invalidateQueries({ queryKey: ['book', result.target.id] });
       queryClient.invalidateQueries({ queryKey: ['books'] });
       queryClient.invalidateQueries({ queryKey: ['reading-entries'] });
+      queryClient.invalidateQueries({ queryKey: ['reading-statistics'] });
       queryClient.invalidateQueries({ queryKey: ['shelf-items'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setTarget(null);

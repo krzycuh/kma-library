@@ -45,6 +45,9 @@ class ReadingEntryRepositoryImpl(
 
     override fun findDistinctYears(readerId: UserId): List<Int> = jpaRepository.findDistinctYears(readerId.value).map { it.toInt() }
 
+    override fun findAllByReader(readerId: UserId): List<ReadingEntry> =
+        jpaRepository.findAllByReaderId(readerId.value).map { ReadingEntryMapper.toDomain(it) }
+
     override fun countByReader(readerId: UserId): Long = jpaRepository.countByReaderId(readerId.value)
 
     override fun save(entry: ReadingEntry): ReadingEntry = ReadingEntryMapper.toDomain(jpaRepository.save(ReadingEntryMapper.toJpa(entry)))
