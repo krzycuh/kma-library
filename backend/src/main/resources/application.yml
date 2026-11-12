@@ -32,6 +32,12 @@ app:
       api-key: ${APP_CATALOG_GOOGLE_API_KEY:}
     bn:
       base-url: ${APP_CATALOG_BN_BASE_URL:https://data.bn.org.pl}
+    # After start-up, in the background: page counts for catalog entries that have none (by ISBN, else by
+    # title and author). Every book is tried once; the outcome is in the log. Disable with false.
+    page-count-backfill:
+      enabled: ${APP_CATALOG_PAGE_COUNT_BACKFILL_ENABLED:true}
+      pause: ${APP_CATALOG_PAGE_COUNT_BACKFILL_PAUSE:500ms}
+      batch-size: ${APP_CATALOG_PAGE_COUNT_BACKFILL_BATCH_SIZE:500}
 
 ---
 spring:

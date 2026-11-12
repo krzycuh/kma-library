@@ -31,6 +31,8 @@ interface ColumnChartProps {
 export function ColumnChart({ items, describeValue, denseLabels = false, color = 1, className = '' }: ColumnChartProps) {
   const max = Math.max(0, ...items.map((i) => i.value));
   const anyEmphasis = items.some((i) => i.emphasis);
+  // Wide figures (hundreds of pages) collide above narrow columns: on phones every other one steps aside too
+  const wideValues = items.some((i) => String(i.value).length >= 3);
 
   return (
     <ul className={`flex items-end gap-0.5 sm:gap-1 ${className}`}>
@@ -38,10 +40,14 @@ export function ColumnChart({ items, describeValue, denseLabels = false, color =
         const heightPct = max > 0 ? (item.value / max) * 100 : 0;
         const barClasses = anyEmphasis && !item.emphasis ? chartMutedBarClass : chartBarClasses[color];
         const hideOnMobile = denseLabels && index % 2 === 1;
+        const hideValueOnMobile = hideOnMobile && wideValues;
         const description = `${item.title ?? item.label}: ${describeValue(item.value)}`;
         const content = (
           <>
-            <span className="h-4 text-[11px] leading-4 tabular-nums text-gray-600" aria-hidden="true">
+            <span
+              className={`h-4 text-[11px] leading-4 tabular-nums text-gray-600 ${hideValueOnMobile ? 'invisible sm:visible' : ''}`}
+              aria-hidden="true"
+            >
               {item.value > 0 ? item.value : ''}
             </span>
             <span className="flex h-28 w-full items-end sm:h-36" aria-hidden="true">

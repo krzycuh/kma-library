@@ -27,6 +27,10 @@ export function statsForYear(stats: ReadingStatistics, year: number): ReadingPer
       withoutMonth: 0,
       seasons: (['SPRING', 'SUMMER', 'AUTUMN', 'WINTER'] as const).map((season) => ({ season, count: 0 })),
       topAuthors: [],
+      pages: 0,
+      booksWithoutPages: 0,
+      pagesByMonth: Array.from({ length: 12 }, (_, i) => ({ month: i + 1, count: 0 })),
+      longestBook: null,
     }
   );
 }
@@ -69,6 +73,12 @@ export function bestYear(stats: ReadingStatistics): ReadingPeriodStats | null {
 /** Books read in the year before the given one; null when that year has no entries. */
 export function previousYearBooks(stats: ReadingStatistics, year: number): number | null {
   return stats.years.find((y) => y.year === year - 1)?.books ?? null;
+}
+
+/** Pages per book over the readings with a known page count, rounded. */
+export function averagePages(period: ReadingPeriodStats): number | null {
+  const counted = period.books - period.booksWithoutPages;
+  return counted > 0 ? Math.round(period.pages / counted) : null;
 }
 
 /** Formats an average with one decimal, in Polish notation (comma). */

@@ -1,0 +1,17 @@
+{
+  "numFound": 2,
+  "start": 0,
+  "docs": [
+    {
+      "key": "/works/OL8193W",
+      "title": "Solaris",
+      "author_name": ["Stanisław Lem"],
+      "number_of_pages_median": 204
+    },
+    {
+      "key": "/works/OL123W",
+      "title": "Solaris: The Definitive Edition",
+      "author_name": ["Stanislaw Lem", "Bill Johnston"]
+    }
+  ]
+}

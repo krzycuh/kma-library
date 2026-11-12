@@ -74,6 +74,7 @@ class DddLayerArchitectureTest {
             .or().implement(pl.kmazurek.library.domain.repository.ReadingEntryRepository::class.java)
             .or().implement(pl.kmazurek.library.domain.repository.LibraryRepository::class.java)
             .or().implement(pl.kmazurek.library.domain.repository.ShelfItemRepository::class.java)
+            .or().implement(pl.kmazurek.library.domain.repository.PageCountLookupRepository::class.java)
             .should().resideInAPackage("..infrastructure.persistence..")
             .check(importedClasses)
     }

@@ -20,6 +20,13 @@ export interface AuthorCount {
   count: number;
 }
 
+export interface LongestBook {
+  bookId: string;
+  title: string;
+  authors: string[];
+  pageCount: number;
+}
+
 /** Statistics of one period: a calendar year, or all years together (year = null). */
 export interface ReadingPeriodStats {
   year: number | null;
@@ -32,6 +39,11 @@ export interface ReadingPeriodStats {
   withoutMonth: number;
   seasons: SeasonCount[];
   topAuthors: AuthorCount[];
+  /** Pages of the readings whose book has a page count */
+  pages: number;
+  booksWithoutPages: number;
+  pagesByMonth: MonthCount[];
+  longestBook: LongestBook | null;
 }
 
 export interface ReadingStatistics {

@@ -59,6 +59,7 @@ data class Book(
     val isbn: Isbn? = null,          // VO: ISBN-10/13, normalizowany do 13, walidacja sumy kontrolnej
     val publishedYear: Int? = null,
     val coverUrl: String? = null,
+    val pageCount: Int? = null,      // przybliżona: jedna wartość na tytuł, niezależnie od wydania
     val source: BookSource,          // MANUAL | OPEN_LIBRARY | GOOGLE_BOOKS ...
     val externalId: String? = null,  // id w katalogu zewnętrznym
     val createdByUserId: UserId,
@@ -171,10 +172,16 @@ users (id UUID PK, email UNIQUE, password_hash, name, role CHECK IN ('USER','ADM
 books (
   id UUID PK, title VARCHAR(500) NOT NULL, authors TEXT NOT NULL,          -- autorzy jako "A; B"
   normalized_key VARCHAR(600) NOT NULL,                                     -- do deduplikacji (title+authors)
-  isbn13 CHAR(13) NULL, published_year INT NULL, cover_url VARCHAR(500),
+  isbn13 CHAR(13) NULL, published_year INT NULL, cover_url VARCHAR(500), page_count INT NULL,
   source VARCHAR(30) NOT NULL DEFAULT 'MANUAL', external_id VARCHAR(100),
   created_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at, updated_at
+)
+
+book_page_count_lookups (                                                   -- douzupełnianie liczby stron: jedna próba na książkę
+  book_id UUID PK REFERENCES books(id) ON DELETE CASCADE, attempted_at,
+  outcome VARCHAR(20) NOT NULL,                                             -- FOUND | NOT_FOUND | UNAVAILABLE (ponawiane przy kolejnym starcie)
+  query_kind VARCHAR(20), provider VARCHAR(30), page_count INT
 )
 UNIQUE INDEX ux_books_isbn13 ON books(isbn13) WHERE isbn13 IS NOT NULL
 INDEX idx_books_normalized_key ON books(normalized_key)
@@ -230,7 +237,7 @@ Plus funkcja/trigger `update_updated_at_column()` jak w poker-stats oraz `V2__in
 | POST | `/reading-entries` | `{ book: { bookId } | { title, authors, isbn? }, finishedYear?, finishedMonth?, rating?, review? }` |
 | GET/PUT/DELETE | `/reading-entries/{id}` | |
 | GET | `/reading-entries/summary?year=` | statystyki do dashboardu |
-| GET | `/reading-entries/statistics` | statystyki czytania: per rok (liczba, średnia ocena, miesiące, pory roku, rozkład ocen, najczęściej czytani autorzy) i łącznie |
+| GET | `/reading-entries/statistics` | statystyki czytania: per rok (liczba, średnia ocena, miesiące, pory roku, rozkład ocen, strony, najgrubsza książka, najczęściej czytani autorzy) i łącznie |
 | GET | `/libraries` | moje biblioteczki (MVP: jedna) |
 | GET | `/libraries/{id}/items?status=&search=&bookId=&page=` | półka |
 | POST | `/libraries/{id}/items` | dodaj egzemplarz |
@@ -266,6 +273,12 @@ Komponenty współdzielone z poker-stats (kopiowane 1:1): `AppLayout`, `Navigati
 Nowe komponenty: `BookPicker` (autocomplete + "dodaj nową"), `RatingStars`, `YearMonthInput`, `LoanModal`, `BookCover`, `ShelfItemStatusBadge`, `Pagination`, wykresy `charts/ColumnChart` i `charts/BarList` (czyste elementy HTML + klasy Tailwind, więc dziedziczą motyw; bez biblioteki wykresów).
 
 ---
+
+### 7.1 Liczba stron
+
+Pole `pageCount` książki jest przybliżone (katalog jest wspólny i deduplikowany po tytule i autorze, więc jedna liczba na tytuł). Źródła: Open Library (`number_of_pages`, a w wyszukiwaniu mediana po wydaniach `number_of_pages_median`), Google Books (`pageCount`), Biblioteka Narodowa (pole MARC 300 $a, np. "459, [4] strony ;"). Przy imporcie po ISBN liczba stron trafia do katalogu razem z resztą metadanych; można ją też wpisać ręcznie na karcie książki.
+
+**Douzupełnianie (`BackfillPageCounts`)** – po starcie aplikacji, w tle, dla książek bez liczby stron: najpierw po ISBN, bez ISBN (albo gdy rekord ISBN nie ma stron) po tytule i autorze. Trafienie z wyszukiwania jest brane tylko wtedy, gdy zgadza się tytuł (część przed dwukropkiem, po normalizacji) i któryś człon nazwiska autora. Każda książka jest sprawdzana raz – wynik ląduje w `book_page_count_lookups`; tylko `UNAVAILABLE` (katalogi nie odpowiadały) jest ponawiane przy kolejnym starcie. Przebieg jest w logu aplikacji: jedna linia na książkę (`Page count backfill: "Tytuł" (Autor) -> 204 pages from openlibrary by ISBN …`) i podsumowanie na końcu. Konfiguracja: `app.catalog.page-count-backfill.enabled|pause|batch-size` (`APP_CATALOG_PAGE_COUNT_BACKFILL_*`); wyłączone, gdy `app.catalog.providers=none`.
 
 ## 8. Rozszerzenia planowane (poza MVP)
 

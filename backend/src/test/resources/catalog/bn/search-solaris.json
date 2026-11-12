@@ -1,0 +1,13 @@
+{
+  "nextPage": "",
+  "bibs": [
+    {"id": 100, "deleted": false, "isbnIssn": "9788308049402", "title": "Solaris /", "author": "Lem, Stanisław (1921-2006)", "publicationYear": "2012",
+     "marc": {"leader": "00000nam a2200000 i 4500", "fields": [
+       {"100": {"ind1": "1", "ind2": " ", "subfields": [{"a": "Lem, Stanisław"}, {"d": "(1921-2006)"}]}},
+       {"245": {"ind1": "1", "ind2": "0", "subfields": [{"a": "Solaris /"}, {"c": "Stanisław Lem."}]}},
+       {"300": {"ind1": " ", "ind2": " ", "subfields": [{"a": "[8], 312, [3] s. ;"}, {"c": "21 cm."}]}}
+     ]}},
+    {"id": 101, "deleted": true, "isbnIssn": "", "title": "Solaris /", "author": "Lem, Stanisław", "publicationYear": "1961",
+     "marc": {"leader": "", "fields": [{"245": {"ind1": "1", "ind2": "0", "subfields": [{"a": "Solaris"}]}}]}}
+  ]
+}

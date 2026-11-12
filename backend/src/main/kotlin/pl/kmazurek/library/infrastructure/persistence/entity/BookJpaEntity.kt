@@ -26,6 +26,8 @@ class BookJpaEntity(
     var publishedYear: Int? = null,
     @Column(name = "cover_url", length = 500)
     var coverUrl: String? = null,
+    @Column(name = "page_count")
+    var pageCount: Int? = null,
     @Column(nullable = false, length = 30)
     var source: String = "MANUAL",
     @Column(name = "external_id", length = 100)

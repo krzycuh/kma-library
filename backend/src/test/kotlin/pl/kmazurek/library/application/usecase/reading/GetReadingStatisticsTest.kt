@@ -19,9 +19,9 @@ import java.time.Year
 
 class GetReadingStatisticsTest {
     private val reader = UserId.generate()
-    private val solaris = Book.create(BookTitle.of("Solaris"), AuthorName.parseList("Lem"), createdByUserId = reader)
+    private val solaris = Book.create(BookTitle.of("Solaris"), AuthorName.parseList("Lem"), createdByUserId = reader, pageCount = 200)
     private val cyberiada = Book.create(BookTitle.of("Cyberiada"), AuthorName.parseList("Lem"), createdByUserId = reader)
-    private val dune = Book.create(BookTitle.of("Dune"), AuthorName.parseList("Herbert"), createdByUserId = reader)
+    private val dune = Book.create(BookTitle.of("Dune"), AuthorName.parseList("Herbert"), createdByUserId = reader, pageCount = 600)
     private val entryRepository: ReadingEntryRepository = mockk()
     private val bookRepository: BookRepository = mockk()
 
@@ -111,6 +111,29 @@ class GetReadingStatisticsTest {
     }
 
     @Test
+    fun `pages are summed over readings with a known page count, per month, with the longest book`() {
+        val stats =
+            useCase(
+                listOf(
+                    ReadingEntry.create(reader, solaris.id, FinishedPeriod(2024, 1)),
+                    ReadingEntry.create(reader, solaris.id, FinishedPeriod(2024, 3)),
+                    ReadingEntry.create(reader, dune.id, FinishedPeriod(2024, 3)),
+                    ReadingEntry.create(reader, cyberiada.id, FinishedPeriod(2024, 4)),
+                ),
+            ).execute(reader)
+
+        val year = stats.years.single()
+        assertEquals(1000, year.pages)
+        assertEquals(1, year.booksWithoutPages)
+        assertEquals(200, year.pagesByMonth.single { it.month == 1 }.count)
+        assertEquals(800, year.pagesByMonth.single { it.month == 3 }.count)
+        assertEquals(0, year.pagesByMonth.single { it.month == 4 }.count)
+        assertEquals("Dune", year.longestBook?.title)
+        assertEquals(600, year.longestBook?.pageCount)
+        assertEquals(dune.id.toString(), year.longestBook?.bookId)
+    }
+
+    @Test
     fun `empty log gives empty statistics`() {
         val stats = useCase(emptyList()).execute(reader)
 
@@ -119,5 +142,7 @@ class GetReadingStatisticsTest {
         assertEquals(emptyList<Any>(), stats.years)
         assertEquals(0, stats.withoutYear)
         assertEquals(12, stats.total.months.size)
+        assertEquals(0, stats.total.pages)
+        assertNull(stats.total.longestBook)
     }
 }

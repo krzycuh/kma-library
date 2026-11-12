@@ -136,7 +136,11 @@ export function ShelfItemDetail() {
               {item.book.title}
             </Link>
             <p className="text-gray-600">{formatAuthors(item.book.authors)}</p>
-            {item.book.publishedYear && <p className="text-sm text-gray-500">{item.book.publishedYear}</p>}
+            {(item.book.publishedYear || item.book.pageCount) && (
+              <p className="text-sm text-gray-500">
+                {[item.book.publishedYear, item.book.pageCount ? t.book.pages(item.book.pageCount) : null].filter(Boolean).join(' · ')}
+              </p>
+            )}
             <div className="mt-2">
               <ShelfItemStatusBadge status={item.status} overdue={overdue} />
             </div>

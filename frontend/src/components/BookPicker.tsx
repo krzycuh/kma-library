@@ -123,6 +123,7 @@ export function BookPicker({ value, onChange, disabled = false, showIsbn = true 
                     <span className="text-sm text-gray-600">
                       {formatAuthors(book.authors)}
                       {book.publishedYear ? ` · ${book.publishedYear}` : ''}
+                      {book.pageCount ? ` · ${t.book.pages(book.pageCount)}` : ''}
                     </span>
                   </button>
                 </li>

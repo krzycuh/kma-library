@@ -28,6 +28,30 @@ interface JpaBookRepository : JpaRepository<BookJpaEntity, UUID> {
         pageable: Pageable,
     ): List<BookJpaEntity>
 
+    // Page-count backfill: never tried, or the catalogs were down last time (UNAVAILABLE rows are retried)
+    @Query(
+        """
+        SELECT b FROM BookJpaEntity b
+        WHERE b.pageCount IS NULL
+          AND NOT EXISTS (
+            SELECT 1 FROM PageCountLookupJpaEntity l WHERE l.bookId = b.id AND l.outcome <> 'UNAVAILABLE'
+          )
+        ORDER BY b.createdAt ASC
+        """,
+    )
+    fun findPendingPageCountLookup(pageable: Pageable): List<BookJpaEntity>
+
+    @Query(
+        """
+        SELECT COUNT(b) FROM BookJpaEntity b
+        WHERE b.pageCount IS NULL
+          AND NOT EXISTS (
+            SELECT 1 FROM PageCountLookupJpaEntity l WHERE l.bookId = b.id AND l.outcome <> 'UNAVAILABLE'
+          )
+        """,
+    )
+    fun countPendingPageCountLookup(): Long
+
     // Bulk delete runs immediately, so a following update may take over the deleted row's unique ISBN
     @Modifying
     @Query("DELETE FROM BookJpaEntity b WHERE b.id = :id")

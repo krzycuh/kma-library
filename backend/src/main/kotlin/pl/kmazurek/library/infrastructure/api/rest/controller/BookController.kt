@@ -85,6 +85,7 @@ class BookController(
                     publishedYear = request.publishedYear,
                     coverUrl = request.coverUrl,
                     createdBy = authentication.userId(),
+                    pageCount = request.pageCount,
                 ),
             )
         auditLogger.log("BOOK_RESOLVED", details = mapOf("bookId" to book.id))
@@ -106,6 +107,7 @@ class BookController(
                     isbn = request.isbn,
                     publishedYear = request.publishedYear,
                     coverUrl = request.coverUrl,
+                    pageCount = request.pageCount,
                     requestedBy = authentication.userId(),
                     isAdmin = authentication.isAdmin(),
                 ),

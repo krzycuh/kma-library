@@ -2,6 +2,7 @@ package pl.kmazurek.library.application.usecase.reading
 
 import org.springframework.stereotype.Service
 import pl.kmazurek.library.application.dto.AuthorCountDto
+import pl.kmazurek.library.application.dto.LongestBookDto
 import pl.kmazurek.library.application.dto.MonthCountDto
 import pl.kmazurek.library.application.dto.RatingCountDto
 import pl.kmazurek.library.application.dto.ReadingPeriodStatsDto
@@ -18,7 +19,7 @@ import pl.kmazurek.library.domain.repository.ReadingEntryRepository
 import java.time.Year
 
 /**
- * Use Case: statistics of my reading log – per year, per month and season, ratings, most read authors.
+ * Use Case: statistics of my reading log – per year, per month and season, ratings, pages, most read authors.
  * Everything is computed in one go from all of the reader's entries: a personal log is small,
  * and the page can then switch between years without another request.
  */
@@ -55,6 +56,8 @@ class GetReadingStatistics(
                     .flatMap { entry -> books[entry.bookId]?.authors.orEmpty() }
                     .groupingBy { it.value }
                     .eachCount()
+            val withPages = entries.mapNotNull { entry -> books[entry.bookId]?.pageCount?.let { entry to it } }
+            val longest = withPages.maxByOrNull { (_, pages) -> pages }?.let { (entry, pages) -> books.getValue(entry.bookId) to pages }
             return ReadingPeriodStatsDto(
                 year = year,
                 books = entries.size,
@@ -70,6 +73,16 @@ class GetReadingStatistics(
                         .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key })
                         .take(TOP_AUTHORS)
                         .map { AuthorCountDto(it.key, it.value) },
+                pages = withPages.sumOf { (_, pages) -> pages },
+                booksWithoutPages = entries.size - withPages.size,
+                pagesByMonth =
+                    (1..12).map { m ->
+                        MonthCountDto(m, withPages.filter { (entry, _) -> entry.finishedOn?.month == m }.sumOf { (_, pages) -> pages })
+                    },
+                longestBook =
+                    longest?.let { (book, pages) ->
+                        LongestBookDto(book.id.toString(), book.title.value, book.authors.map { it.value }, pages)
+                    },
             )
         }
     }

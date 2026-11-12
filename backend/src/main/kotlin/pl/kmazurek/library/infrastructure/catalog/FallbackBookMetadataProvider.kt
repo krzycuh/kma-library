@@ -1,6 +1,7 @@
 package pl.kmazurek.library.infrastructure.catalog
 
 import org.slf4j.LoggerFactory
+import pl.kmazurek.library.application.service.BookCandidate
 import pl.kmazurek.library.application.service.BookMetadata
 import pl.kmazurek.library.application.service.BookMetadataProvider
 import pl.kmazurek.library.application.service.BookMetadataUnavailableException
@@ -8,10 +9,10 @@ import pl.kmazurek.library.domain.model.catalog.Isbn
 
 /**
  * Asks external catalogs in order (name → provider) until the combined answer is complete
- * (authors, cover and year), then merges what they returned: catalogs often know only part of a book
+ * (authors, cover, year and pages), then merges what they returned: catalogs often know only part of a book
  * (Open Library without the author, Biblioteka Narodowa without a cover).
  *
- * The main record is the first one with authors; missing cover and year are taken from the others, in order.
+ * The main record is the first one with authors; missing cover, year and pages are taken from the others, in order.
  * Unavailable catalogs are skipped. The lookup is reported as unavailable (so it is not cached and a retry
  * asks again) only when no usable record was found and some catalog could not be asked.
  */
@@ -46,8 +47,10 @@ class FallbackBookMetadataProvider(
             found.keys.toList().orNone(),
             notFound.orNone(),
             unavailable.orNone(),
-            merged?.let { m -> " -> authors: ${m.authors.isNotEmpty()}, cover: ${m.coverUrl != null}, year: ${m.publishedYear != null}" }
-                .orEmpty(),
+            merged?.let { m ->
+                " -> authors: ${m.authors.isNotEmpty()}, cover: ${m.coverUrl != null}, year: ${m.publishedYear != null}, " +
+                    "pages: ${m.pageCount != null}"
+            }.orEmpty(),
         )
         if (lastFailure != null && (merged == null || merged.authors.isEmpty())) {
             throw BookMetadataUnavailableException(
@@ -59,7 +62,38 @@ class FallbackBookMetadataProvider(
         return merged
     }
 
-    private fun BookMetadata.isComplete() = authors.isNotEmpty() && coverUrl != null && publishedYear != null
+    /**
+     * Title/author search: the first catalog that returns a hit with a page count wins (the caller checks the
+     * hit is really the book). Unavailable catalogs are skipped; reported only when nothing usable came back.
+     */
+    override fun searchByTitleAndAuthor(
+        title: String,
+        author: String?,
+    ): List<BookCandidate> {
+        val unavailable = mutableListOf<String>()
+        var lastFailure: BookMetadataUnavailableException? = null
+        for ((name, provider) in providers) {
+            try {
+                val candidates = provider.searchByTitleAndAuthor(title, author)
+                if (candidates.any { it.pageCount != null }) {
+                    logger.debug("Search '{}' / '{}': {} hits with pages in {}", title, author, candidates.size, name)
+                    return candidates
+                }
+            } catch (ex: BookMetadataUnavailableException) {
+                unavailable += name
+                lastFailure = ex
+            }
+        }
+        if (lastFailure != null) {
+            throw BookMetadataUnavailableException(
+                "Search '$title': no hit with pages; unavailable: ${unavailable.joinToString()}",
+                lastFailure,
+            )
+        }
+        return emptyList()
+    }
+
+    private fun BookMetadata.isComplete() = authors.isNotEmpty() && coverUrl != null && publishedYear != null && pageCount != null
 
     private fun List<String>.orNone() = if (isEmpty()) "-" else joinToString()
 
@@ -70,6 +104,7 @@ class FallbackBookMetadataProvider(
             return main.copy(
                 coverUrl = main.coverUrl ?: others.firstNotNullOfOrNull { it.coverUrl },
                 publishedYear = main.publishedYear ?: others.firstNotNullOfOrNull { it.publishedYear },
+                pageCount = main.pageCount ?: others.firstNotNullOfOrNull { it.pageCount },
             )
         }
     }

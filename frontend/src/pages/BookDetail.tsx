@@ -34,6 +34,7 @@ function BookEditForm({ book }: { book: Book }) {
   const [authors, setAuthors] = useState(book.authors.join('; '));
   const [isbn, setIsbn] = useState(book.isbn ?? '');
   const [publishedYear, setPublishedYear] = useState(book.publishedYear ? String(book.publishedYear) : '');
+  const [pageCount, setPageCount] = useState(book.pageCount ? String(book.pageCount) : '');
   const [coverUrl, setCoverUrl] = useState(book.coverUrl ?? '');
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -42,6 +43,7 @@ function BookEditForm({ book }: { book: Book }) {
     setAuthors(book.authors.join('; '));
     setIsbn(book.isbn ?? '');
     setPublishedYear(book.publishedYear ? String(book.publishedYear) : '');
+    setPageCount(book.pageCount ? String(book.pageCount) : '');
     setCoverUrl(book.coverUrl ?? '');
   }, [book]);
 
@@ -53,6 +55,7 @@ function BookEditForm({ book }: { book: Book }) {
         isbn: isbn.trim() || null,
         publishedYear: publishedYear ? Number(publishedYear) : null,
         coverUrl: coverUrl.trim() || null,
+        pageCount: pageCount ? Number(pageCount) : null,
       }),
     onSuccess: () => {
       toast.success(t.book.bookSaved);
@@ -111,6 +114,24 @@ function BookEditForm({ book }: { book: Book }) {
             onChange={(e) => setPublishedYear(e.target.value)}
             className={inputClasses}
           />
+        </div>
+        <div>
+          <label htmlFor="edit-pages" className="block text-sm font-medium text-gray-700">
+            {t.book.pageCount}
+          </label>
+          <input
+            id="edit-pages"
+            type="number"
+            min={1}
+            max={20000}
+            value={pageCount}
+            onChange={(e) => setPageCount(e.target.value)}
+            className={inputClasses}
+            aria-describedby="edit-pages-hint"
+          />
+          <p id="edit-pages-hint" className="mt-1 text-xs text-gray-500">
+            {t.book.pageCountHint}
+          </p>
         </div>
       </div>
       <CoverUrlInput id="edit-cover" value={coverUrl} onChange={setCoverUrl} inputClassName={`${inputClasses} mt-0`} />
@@ -287,6 +308,10 @@ export function BookDetail() {
             <div>
               <dt className="inline font-medium text-gray-600">{t.book.publishedYear}: </dt>
               <dd className="inline text-gray-900">{book.publishedYear ?? '—'}</dd>
+            </div>
+            <div>
+              <dt className="inline font-medium text-gray-600">{t.book.pageCount}: </dt>
+              <dd className="inline text-gray-900">{book.pageCount ?? '—'}</dd>
             </div>
           </dl>
         </div>
