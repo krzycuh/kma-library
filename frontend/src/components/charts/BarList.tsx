@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { chartBarClasses, type ChartColor } from './chartColors';
 
 export interface BarItem {
   key: string;
@@ -13,6 +14,8 @@ interface BarListProps {
   describeValue: (value: number) => string;
   /** Width of the label column */
   labelClassName?: string;
+  /** Hue of the bars; every chart on a page gets its own */
+  color?: ChartColor;
   className?: string;
 }
 
@@ -20,7 +23,7 @@ interface BarListProps {
  * Horizontal bars, one per named row, all on the same left baseline: label, bar, figure.
  * One hue; the figure beside the bar is the value, so no tooltip is needed.
  */
-export function BarList({ items, describeValue, labelClassName = 'w-20 sm:w-28', className = '' }: BarListProps) {
+export function BarList({ items, describeValue, labelClassName = 'w-20 sm:w-28', color = 1, className = '' }: BarListProps) {
   const max = Math.max(0, ...items.map((i) => i.value));
   return (
     <ul className={`space-y-2 ${className}`}>
@@ -34,7 +37,7 @@ export function BarList({ items, describeValue, labelClassName = 'w-20 sm:w-28',
             </span>
             <span className="flex h-4 min-w-0 flex-1 items-center" aria-hidden="true">
               <span
-                className="block h-3 rounded-r bg-blue-600 transition-[width] duration-300"
+                className={`block h-3 rounded-r ${chartBarClasses[color]} transition-[width] duration-300`}
                 style={{ width: item.value > 0 ? `max(${widthPct}%, 3px)` : '0' }}
               />
             </span>

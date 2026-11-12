@@ -186,7 +186,7 @@ export function Statistics() {
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
             {yearColumns.length > 0 && (
               <ChartCard title={t.stats.chartYears} hint={data.withoutYear > 0 ? t.stats.withoutYear(data.withoutYear) : undefined}>
-                <ColumnChart items={yearColumns} describeValue={books} denseLabels={yearColumns.length > 8} />
+                <ColumnChart items={yearColumns} describeValue={books} denseLabels={yearColumns.length > 8} color={1} />
               </ChartCard>
             )}
 
@@ -204,6 +204,7 @@ export function Statistics() {
                   }))}
                   describeValue={books}
                   denseLabels
+                  color={2}
                 />
               ) : (
                 <p className="py-6 text-center text-sm text-gray-500">{t.stats.noMonths}</p>
@@ -214,6 +215,7 @@ export function Statistics() {
               <BarList
                 items={period.seasons.map((s) => ({ key: s.season, label: t.seasons[s.season], value: s.count }))}
                 describeValue={books}
+                color={3}
               />
             </ChartCard>
 
@@ -234,6 +236,7 @@ export function Statistics() {
                     value: r.count,
                   }))}
                   describeValue={books}
+                  color={4}
                 />
               ) : (
                 <p className="py-6 text-center text-sm text-gray-500">{t.stats.noRatings}</p>
@@ -246,6 +249,7 @@ export function Statistics() {
                   items={period.topAuthors.map((a) => ({ key: a.author, label: a.author, value: a.count }))}
                   describeValue={books}
                   labelClassName="w-32 sm:w-44"
+                  color={5}
                 />
               ) : (
                 <p className="py-6 text-center text-sm text-gray-500">{t.stats.noAuthors}</p>

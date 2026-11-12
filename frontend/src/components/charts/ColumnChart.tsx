@@ -1,3 +1,5 @@
+import { chartBarClasses, chartMutedBarClass, type ChartColor } from './chartColors';
+
 export interface ColumnItem {
   key: string;
   /** Short label under the column */
@@ -17,6 +19,8 @@ interface ColumnChartProps {
   describeValue: (value: number) => string;
   /** Cramped charts (many columns on a phone) show every other label below the narrow breakpoint */
   denseLabels?: boolean;
+  /** Hue of the columns; every chart on a page gets its own */
+  color?: ChartColor;
   className?: string;
 }
 
@@ -24,7 +28,7 @@ interface ColumnChartProps {
  * Column chart drawn with plain elements, one hue: columns rise from a shared baseline,
  * the value sits above each column in text ink. Theme-aware through Tailwind classes.
  */
-export function ColumnChart({ items, describeValue, denseLabels = false, className = '' }: ColumnChartProps) {
+export function ColumnChart({ items, describeValue, denseLabels = false, color = 1, className = '' }: ColumnChartProps) {
   const max = Math.max(0, ...items.map((i) => i.value));
   const anyEmphasis = items.some((i) => i.emphasis);
 
@@ -32,7 +36,7 @@ export function ColumnChart({ items, describeValue, denseLabels = false, classNa
     <ul className={`flex items-end gap-0.5 sm:gap-1 ${className}`}>
       {items.map((item, index) => {
         const heightPct = max > 0 ? (item.value / max) * 100 : 0;
-        const barClasses = anyEmphasis && !item.emphasis ? 'bg-blue-200' : 'bg-blue-600';
+        const barClasses = anyEmphasis && !item.emphasis ? chartMutedBarClass : chartBarClasses[color];
         const hideOnMobile = denseLabels && index % 2 === 1;
         const description = `${item.title ?? item.label}: ${describeValue(item.value)}`;
         const content = (

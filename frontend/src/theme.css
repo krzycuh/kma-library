@@ -10,10 +10,16 @@
  *   amber    "lent"                        cyan
  *   red      overdue, errors, danger       pink
  *   star     rating stars (amber)          pink
+ *   chart-N  one hue per chart (statistics): calm distinct hues in light, neon tubes in the dark theme
+ *            1 blue / fuchsia · 2 cyan / cyan · 3 emerald / neon green · 4 amber / neon yellow · 5 violet / electric blue
+ *            chart-muted: the de-emphasized columns next to a highlighted one
  */
 :root {
   --c-white: 255 255 255;
   --c-star: 251 191 36;
+
+  --c-chart-1: 37 99 235; --c-chart-2: 8 145 178; --c-chart-3: 5 150 105; --c-chart-4: 245 158 11; --c-chart-5: 124 58 237;
+  --c-chart-muted: 191 219 254;
 
   --c-gray-50: 249 250 251; --c-gray-100: 243 244 246; --c-gray-200: 229 231 235; --c-gray-300: 209 213 219;
   --c-gray-400: 156 163 175; --c-gray-500: 107 114 128; --c-gray-600: 75 85 99; --c-gray-700: 55 65 81;
@@ -45,6 +51,9 @@ html.dark {
 
   --c-white: 22 19 34;
   --c-star: 240 171 252;
+
+  --c-chart-1: 232 121 249; --c-chart-2: 34 211 238; --c-chart-3: 74 222 128; --c-chart-4: 250 204 21; --c-chart-5: 96 165 250;
+  --c-chart-muted: 76 47 107;
 
   /* Inverted: 50 is the page, 900 the main text */
   --c-gray-50: 11 10 18; --c-gray-100: 28 24 40; --c-gray-200: 44 37 64; --c-gray-300: 59 51 84;
@@ -95,6 +104,13 @@ html.dark .bg-blue-600 {
   --tw-shadow: 0 0 16px rgb(232 121 249 / 0.4);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
+/* Chart marks glow like neon tubes, each chart in its own color */
+html.dark .bg-chart-1 { box-shadow: 0 0 12px rgb(var(--c-chart-1) / 0.5); }
+html.dark .bg-chart-2 { box-shadow: 0 0 12px rgb(var(--c-chart-2) / 0.5); }
+html.dark .bg-chart-3 { box-shadow: 0 0 12px rgb(var(--c-chart-3) / 0.5); }
+html.dark .bg-chart-4 { box-shadow: 0 0 12px rgb(var(--c-chart-4) / 0.5); }
+html.dark .bg-chart-5 { box-shadow: 0 0 12px rgb(var(--c-chart-5) / 0.5); }
+
 /* Navigation line icons: neon tubes in the accent color, brighter on the active entry */
 html.dark .nav-icon {
   color: rgb(var(--c-blue-600));

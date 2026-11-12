@@ -24,6 +24,15 @@ export default {
         yellow: themed('yellow'),
         // Rating stars: amber in the light theme, pink in neon (amber is "lent" there)
         star: 'rgb(var(--c-star) / <alpha-value>)',
+        // Statistics charts: one hue per chart, neon in the dark theme (src/theme.css)
+        chart: {
+          1: 'rgb(var(--c-chart-1) / <alpha-value>)',
+          2: 'rgb(var(--c-chart-2) / <alpha-value>)',
+          3: 'rgb(var(--c-chart-3) / <alpha-value>)',
+          4: 'rgb(var(--c-chart-4) / <alpha-value>)',
+          5: 'rgb(var(--c-chart-5) / <alpha-value>)',
+          muted: 'rgb(var(--c-chart-muted) / <alpha-value>)',
+        },
         // Camera scanner: always black and white, whatever the theme
         scanner: {
           bg: '#000000',
