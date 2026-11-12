@@ -17,6 +17,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard').then((m) => ({ default:
 const Profile = lazy(() => import('./pages/Profile').then((m) => ({ default: m.Profile })));
 const ReadingList = lazy(() => import('./pages/ReadingList').then((m) => ({ default: m.ReadingList })));
 const ReadingEntryForm = lazy(() => import('./pages/ReadingEntryForm').then((m) => ({ default: m.ReadingEntryForm })));
+const Statistics = lazy(() => import('./pages/Statistics').then((m) => ({ default: m.Statistics })));
 const Shelf = lazy(() => import('./pages/Shelf').then((m) => ({ default: m.Shelf })));
 const ShelfItemForm = lazy(() => import('./pages/ShelfItemForm').then((m) => ({ default: m.ShelfItemForm })));
 const LibraryMembers = lazy(() => import('./pages/LibraryMembers').then((m) => ({ default: m.LibraryMembers })));
@@ -65,6 +66,7 @@ function App() {
                   <Route path="/read" element={<ReadingList />} />
                   <Route path="/read/new" element={<ReadingEntryForm />} />
                   <Route path="/read/:id/edit" element={<ReadingEntryForm />} />
+                  <Route path="/stats" element={<Statistics />} />
                   <Route path="/shelf" element={<Shelf />} />
                   <Route path="/shelf/new" element={<ShelfItemForm />} />
                   <Route path="/shelf/members" element={<LibraryMembers />} />

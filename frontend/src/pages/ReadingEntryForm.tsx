@@ -72,6 +72,7 @@ export function ReadingEntryForm() {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['reading-entries'] });
     queryClient.invalidateQueries({ queryKey: ['reading-summary'] });
+    queryClient.invalidateQueries({ queryKey: ['reading-statistics'] });
     queryClient.invalidateQueries({ queryKey: ['reading-entry', id] });
     queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     queryClient.invalidateQueries({ queryKey: ['books'] });

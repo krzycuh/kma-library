@@ -1,4 +1,4 @@
-export type NavIconName = 'read' | 'shelf' | 'loans' | 'profile' | 'users' | 'camera';
+export type NavIconName = 'read' | 'shelf' | 'loans' | 'stats' | 'profile' | 'users' | 'camera';
 
 // Outline icons drawn on a 24px grid with a 1.75px stroke; the shelf echoes the three books of the logo
 const paths: Record<NavIconName, string[]> = {
@@ -9,6 +9,7 @@ const paths: Record<NavIconName, string[]> = {
   ],
   shelf: ['M4 5h4v14H4z', 'M10 3h4v16h-4z', 'M16.4 6.2l3.6 1-3.2 11.8-3.6-1', 'M2.5 21h19'],
   loans: ['M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5', 'M16.5 3 21 7.5m0 0L16.5 12M21 7.5H7.5'],
+  stats: ['M3.5 20.5h17', 'M6 16.5v-5', 'M11 16.5V7', 'M16 16.5v-8', 'M21 16.5V4.5'],
   profile: ['M15.75 7.5a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z', 'M4.5 20.25a7.5 7.5 0 0 1 15 0'],
   users: [
     'M12 8.25a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',

@@ -117,7 +117,7 @@ export function Dashboard() {
               label={t.dashboard.readThisYear(data.year)}
               value={data.booksReadThisYear}
               hint={`${t.reading.total}: ${data.booksReadTotal}`}
-              to="/read"
+              to={`/stats?year=${data.year}`}
             />
             <StatTile label={t.dashboard.averageRating} value={formatRating(data.averageRatingThisYear)} hint="★ 1–5" />
             <StatTile label={t.dashboard.onShelf} value={data.onShelfCount} to="/shelf" />

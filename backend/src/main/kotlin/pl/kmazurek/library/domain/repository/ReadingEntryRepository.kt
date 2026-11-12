@@ -35,6 +35,11 @@ interface ReadingEntryRepository {
 
     fun findDistinctYears(readerId: UserId): List<Int>
 
+    /**
+     * Every entry of a reader, in no particular order (for statistics; a reader has at most a few thousand).
+     */
+    fun findAllByReader(readerId: UserId): List<ReadingEntry>
+
     fun countByReader(readerId: UserId): Long
 
     fun save(entry: ReadingEntry): ReadingEntry

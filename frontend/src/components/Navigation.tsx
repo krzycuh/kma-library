@@ -45,6 +45,10 @@ export function Navigation() {
         <NavIcon name="loans" />
         <span>{t.nav.loans}</span>
       </Link>
+      <Link to="/stats" className={linkClasses('/stats')} aria-label={t.nav.stats}>
+        <NavIcon name="stats" />
+        <span>{t.nav.stats}</span>
+      </Link>
       <Link to="/profile" className={linkClasses('/profile')} aria-label={t.nav.profile}>
         <NavIcon name="profile" />
         <span>{t.nav.profile}</span>
