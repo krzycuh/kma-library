@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import pl.kmazurek.library.application.service.BookCandidate
 import pl.kmazurek.library.application.service.BookMetadata
 import pl.kmazurek.library.application.service.BookMetadataProvider
 import pl.kmazurek.library.application.service.BookMetadataUnavailableException
@@ -22,14 +23,23 @@ class FallbackBookMetadataProviderTest {
     private val isbn = Isbn.parse("9788383182070")
 
     private val complete =
-        BookMetadata(isbn.value, "Solaris", listOf("Stanisław Lem"), 1961, "https://covers.example/ol.jpg", BookSource.OPEN_LIBRARY, "OL1M")
+        BookMetadata(
+            isbn.value,
+            "Solaris",
+            listOf("Stanisław Lem"),
+            1961,
+            "https://covers.example/ol.jpg",
+            BookSource.OPEN_LIBRARY,
+            "OL1M",
+            204,
+        )
 
     // Open Library knows the edition and its cover, but not the author
     private val olWithoutAuthor = complete.copy(authors = emptyList(), publishedYear = null)
 
     // Biblioteka Narodowa has the author and year, never a cover
     private val bnRecord =
-        BookMetadata(isbn.value, "Solaris", listOf("Stanisław Lem"), 2022, null, BookSource.NATIONAL_LIBRARY, "123")
+        BookMetadata(isbn.value, "Solaris", listOf("Stanisław Lem"), 2022, null, BookSource.NATIONAL_LIBRARY, "123", 312)
 
     @BeforeEach
     fun setup() {
@@ -118,5 +128,59 @@ class FallbackBookMetadataProviderTest {
 
         val ex = assertThrows<BookMetadataUnavailableException> { provider.lookupByIsbn(isbn) }
         assertEquals("ISBN ${isbn.value}: no complete record in openlibrary, bn; unavailable: google", ex.message)
+    }
+
+    @Test
+    fun `should keep asking for pages and merge them from a later catalog`() {
+        val openLibrary = mockk<BookMetadataProvider>()
+        val google = mockk<BookMetadataProvider>()
+        val full =
+            BookMetadata(
+                isbn.value,
+                "Solaris",
+                listOf("Stanisław Lem"),
+                1961,
+                "https://covers.example/ol.jpg",
+                BookSource.OPEN_LIBRARY,
+                "OL1M",
+            )
+        every { openLibrary.lookupByIsbn(isbn) } returns full
+        every { google.lookupByIsbn(isbn) } returns full.copy(source = BookSource.GOOGLE_BOOKS, pageCount = 204)
+
+        val merged = FallbackBookMetadataProvider(linkedMapOf("openlibrary" to openLibrary, "google" to google)).lookupByIsbn(isbn)!!
+
+        assertEquals(BookSource.OPEN_LIBRARY, merged.source)
+        assertEquals(204, merged.pageCount)
+    }
+
+    @Test
+    fun `search returns the first catalog with a hit that has pages and skips unavailable ones`() {
+        val openLibrary = mockk<BookMetadataProvider>()
+        val bn = mockk<BookMetadataProvider>()
+        val google = mockk<BookMetadataProvider>()
+        every { openLibrary.searchByTitleAndAuthor("Solaris", "Lem") } throws BookMetadataUnavailableException("down")
+        every {
+            bn.searchByTitleAndAuthor("Solaris", "Lem")
+        } returns listOf(BookCandidate("Solaris", listOf("Lem"), null, BookSource.NATIONAL_LIBRARY))
+        every {
+            google.searchByTitleAndAuthor("Solaris", "Lem")
+        } returns listOf(BookCandidate("Solaris", listOf("Lem"), 204, BookSource.GOOGLE_BOOKS))
+        val provider = FallbackBookMetadataProvider(linkedMapOf("openlibrary" to openLibrary, "bn" to bn, "google" to google))
+
+        assertEquals(204, provider.searchByTitleAndAuthor("Solaris", "Lem").single().pageCount)
+    }
+
+    @Test
+    fun `search reports unavailable only when no hit with pages was found and a catalog was down`() {
+        val openLibrary = mockk<BookMetadataProvider>()
+        val google = mockk<BookMetadataProvider>()
+        every { openLibrary.searchByTitleAndAuthor(any(), any()) } throws BookMetadataUnavailableException("down")
+        every { google.searchByTitleAndAuthor(any(), any()) } returns emptyList()
+        val provider = FallbackBookMetadataProvider(linkedMapOf("openlibrary" to openLibrary, "google" to google))
+
+        assertThrows<BookMetadataUnavailableException> { provider.searchByTitleAndAuthor("Solaris", "Lem") }
+
+        every { openLibrary.searchByTitleAndAuthor(any(), any()) } returns emptyList()
+        assertEquals(emptyList<Any>(), provider.searchByTitleAndAuthor("Solaris", "Lem"))
     }
 }

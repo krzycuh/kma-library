@@ -79,6 +79,7 @@ class ImportBookByIsbn(
             coverUrl = metadata.coverUrl?.takeIf { it.length <= MAX_COVER_URL_LENGTH },
             source = metadata.source,
             externalId = metadata.externalId?.takeIf { it.length <= MAX_EXTERNAL_ID_LENGTH },
+            pageCount = metadata.pageCount?.takeIf { it in 1..Book.MAX_PAGES },
         )
     }
 

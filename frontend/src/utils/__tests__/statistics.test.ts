@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ReadingPeriodStats, ReadingStatistics } from '../../types/statistics';
 import {
+  averagePages,
   averagePerYear,
   bestYear,
   formatAverage,
@@ -23,6 +24,10 @@ const period = (year: number | null, books: number): ReadingPeriodStats => ({
   withoutMonth: 0,
   seasons: [],
   topAuthors: [],
+  pages: 0,
+  booksWithoutPages: 0,
+  pagesByMonth: [],
+  longestBook: null,
 });
 
 const stats: ReadingStatistics = {
@@ -86,6 +91,11 @@ describe('statistics utils', () => {
   it('finds the previous year count', () => {
     expect(previousYearBooks(stats, 2025)).toBe(12);
     expect(previousYearBooks(stats, 2024)).toBeNull();
+  });
+
+  it('averages pages over the books that have a page count', () => {
+    expect(averagePages({ ...period(2024, 4), pages: 1000, booksWithoutPages: 1 })).toBe(333);
+    expect(averagePages({ ...period(2024, 2), pages: 0, booksWithoutPages: 2 })).toBeNull();
   });
 
   it('formats averages with a comma', () => {

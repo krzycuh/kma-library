@@ -22,6 +22,13 @@ data class AuthorCountDto(
     val count: Int,
 )
 
+data class LongestBookDto(
+    val bookId: String,
+    val title: String,
+    val authors: List<String>,
+    val pageCount: Int,
+)
+
 /**
  * Reading statistics of one period: a single calendar year, or every year together (`year` = null).
  * Lists of ratings, months and seasons are complete (zero counts included) so charts need no gap filling.
@@ -37,6 +44,11 @@ data class ReadingPeriodStatsDto(
     val withoutMonth: Int,
     val seasons: List<SeasonCountDto>,
     val topAuthors: List<AuthorCountDto>,
+    /** Pages of the readings whose book has a page count; the others are counted in `booksWithoutPages` */
+    val pages: Int,
+    val booksWithoutPages: Int,
+    val pagesByMonth: List<MonthCountDto>,
+    val longestBook: LongestBookDto?,
 )
 
 data class ReadingStatisticsDto(

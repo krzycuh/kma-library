@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
+import pl.kmazurek.library.application.service.BookCandidate
 import pl.kmazurek.library.application.service.BookMetadata
 import pl.kmazurek.library.application.service.BookMetadataProvider
 import pl.kmazurek.library.application.service.BookMetadataUnavailableException
@@ -20,6 +21,9 @@ import pl.kmazurek.library.domain.model.catalog.Isbn
  * translators and the publisher too – without a separator), so title and authors come from the MARC record:
  * 245 $a/$n/$p/$b = title, 100 $a = main author, 700 $a with relator $e "Autor" = co-authors.
  * ISBNs are stored without hyphens, older books with the ISBN-10 only – so ISBN-13 first, then ISBN-10.
+ * Pages come from 300 $a ("459, [4] strony ;", "48 s. :"): the first number of the physical description.
+ * Title/author search: the same endpoint with title= and author= (author in catalogue order, "Lem, Stanisław",
+ * so the surname alone is sent).
  */
 class NationalLibraryBookMetadataProvider(
     private val restClient: RestClient,
@@ -35,21 +39,46 @@ class NationalLibraryBookMetadataProvider(
         return null
     }
 
+    override fun searchByTitleAndAuthor(
+        title: String,
+        author: String?,
+    ): List<BookCandidate> {
+        val params = linkedMapOf("title" to title, "limit" to SEARCH_LIMIT.toString())
+        // The catalogue indexes "Surname, Given names"; the surname is what both orders share
+        author?.trim()?.substringAfterLast(' ')?.takeIf { it.isNotEmpty() }?.let { params["author"] = it }
+        return fetch(params, "'$title' / '$author'")
+            .filter { it.deleted != true && it.marc != null }
+            .mapNotNull { bib ->
+                val marc = MarcRecord(bib.marc!!)
+                val hitTitle = marc.title() ?: return@mapNotNull null
+                BookCandidate(hitTitle, marc.authors(), marc.pageCount(), BookSource.NATIONAL_LIBRARY)
+            }
+    }
+
     private fun fetch(
         isbn: Isbn,
         query: String,
+    ): List<BnBib> = fetch(mapOf("isbnIssn" to query), isbn.value)
+
+    private fun fetch(
+        params: Map<String, String>,
+        what: String,
     ): List<BnBib> =
         try {
             retryOnceOnServerError {
                 restClient.get()
-                    .uri { it.path("/api/institutions/bibs.json").queryParam("isbnIssn", query).build() }
+                    .uri {
+                        it.path("/api/institutions/bibs.json")
+                        params.forEach { (name, value) -> it.queryParam(name, value) }
+                        it.build()
+                    }
                     .retrieve()
                     .body(BnBibs::class.java)
             }?.bibs.orEmpty()
         } catch (ex: HttpClientErrorException.NotFound) {
             emptyList()
         } catch (ex: RestClientException) {
-            logger.warn("Biblioteka Narodowa lookup failed for {}: {}", isbn, ex.message)
+            logger.warn("Biblioteka Narodowa lookup failed for {}: {}", what, ex.message)
             throw BookMetadataUnavailableException("Biblioteka Narodowa is unavailable", ex)
         }
 
@@ -76,6 +105,7 @@ class NationalLibraryBookMetadataProvider(
             coverUrl = null,
             source = BookSource.NATIONAL_LIBRARY,
             externalId = bib.id?.toString(),
+            pageCount = marc.pageCount(),
         )
     }
 
@@ -117,6 +147,16 @@ class NationalLibraryBookMetadataProvider(
         }
 
         /**
+         * 300 $a, e.g. "459, [4] strony ;" → 459, "48 s. :" → 48, "[8], 312, [3] s." → 312:
+         * the largest number outside brackets (bracketed ones are unnumbered leaves).
+         */
+        fun pageCount(): Int? =
+            dataFields("300").firstOrNull()?.firstValue("a")
+                ?.replace(BRACKETS, " ")
+                ?.let { NUMBER.findAll(it).mapNotNull { m -> m.value.toIntOrNull() }.maxOrNull() }
+                ?.takeIf { it > 0 }
+
+        /**
          * 245 $c without a 100 field, e.g. "Lush Gjergji ; [tł. ...]" → ["Lush Gjergji"].
          */
         private fun statementOfResponsibility(): List<String> =
@@ -135,6 +175,8 @@ class NationalLibraryBookMetadataProvider(
         private val LIFE_DATES = Regex("""\s*\([^)]*\)""")
         private val BRACKETS = Regex("""\[[^]]*]""")
         private val TRAILING_PUNCTUATION = Regex("""[\s/:;,.=]+$""")
+        private val NUMBER = Regex("""\d+""")
+        private const val SEARCH_LIMIT = 5
 
         internal fun clean(raw: String): String = raw.trim().replace(TRAILING_PUNCTUATION, "").trim()
 

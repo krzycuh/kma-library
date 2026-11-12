@@ -7,6 +7,8 @@ export interface Book {
   isbn: string | null;
   publishedYear: number | null;
   coverUrl: string | null;
+  /** Approximate: one value per title, whatever the edition */
+  pageCount: number | null;
   source: BookSource;
   createdByUserId: string | null;
   createdAt: string;
@@ -22,6 +24,7 @@ export interface BookReference {
   isbn?: string;
   publishedYear?: number | null;
   coverUrl?: string;
+  pageCount?: number | null;
 }
 
 export interface CreateBookRequest {
@@ -29,6 +32,7 @@ export interface CreateBookRequest {
   authors: string;
   isbn?: string;
   publishedYear?: number | null;
+  pageCount?: number | null;
 }
 
 export interface UpdateBookRequest {
@@ -37,6 +41,7 @@ export interface UpdateBookRequest {
   isbn?: string | null;
   publishedYear?: number | null;
   coverUrl?: string | null;
+  pageCount?: number | null;
 }
 
 /**
@@ -48,6 +53,7 @@ export interface BookMetadata {
   authors: string[];
   publishedYear: number | null;
   coverUrl: string | null;
+  pageCount: number | null;
   source: BookSource;
 }
 

@@ -1,5 +1,7 @@
 package pl.kmazurek.library.application.dto
 
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import pl.kmazurek.library.application.service.BookMetadata
@@ -16,6 +18,7 @@ data class BookDto(
     val isbn: String?,
     val publishedYear: Int?,
     val coverUrl: String?,
+    val pageCount: Int?,
     val source: BookSource,
     val createdByUserId: String?,
     val createdAt: LocalDateTime,
@@ -29,6 +32,7 @@ data class BookDto(
                 isbn = book.isbn?.value,
                 publishedYear = book.publishedYear,
                 coverUrl = book.coverUrl,
+                pageCount = book.pageCount,
                 source = book.source,
                 createdByUserId = book.createdByUserId?.toString(),
                 createdAt = book.createdAt,
@@ -50,6 +54,8 @@ data class BookReference(
     val publishedYear: Int? = null,
     @field:Size(max = 500, message = "Cover URL cannot exceed 500 characters")
     val coverUrl: String? = null,
+    @field:Min(1) @field:Max(Book.MAX_PAGES.toLong())
+    val pageCount: Int? = null,
 )
 
 data class CreateBookRequest(
@@ -64,6 +70,8 @@ data class CreateBookRequest(
     val publishedYear: Int? = null,
     @field:Size(max = 500, message = "Cover URL cannot exceed 500 characters")
     val coverUrl: String? = null,
+    @field:Min(1) @field:Max(Book.MAX_PAGES.toLong())
+    val pageCount: Int? = null,
 )
 
 data class UpdateBookRequest(
@@ -78,6 +86,8 @@ data class UpdateBookRequest(
     val publishedYear: Int? = null,
     @field:Size(max = 500, message = "Cover URL cannot exceed 500 characters")
     val coverUrl: String? = null,
+    @field:Min(1) @field:Max(Book.MAX_PAGES.toLong())
+    val pageCount: Int? = null,
 )
 
 data class BookMetadataDto(
@@ -86,6 +96,7 @@ data class BookMetadataDto(
     val authors: List<String>,
     val publishedYear: Int?,
     val coverUrl: String?,
+    val pageCount: Int?,
     val source: BookSource,
 ) {
     companion object {
@@ -96,6 +107,7 @@ data class BookMetadataDto(
                 authors = metadata.authors,
                 publishedYear = metadata.publishedYear,
                 coverUrl = metadata.coverUrl,
+                pageCount = metadata.pageCount,
                 source = metadata.source,
             )
     }

@@ -76,6 +76,41 @@ class BookTest {
     }
 
     @Test
+    fun `page count must be positive and within range`() {
+        assertThrows<IllegalArgumentException> {
+            Book.create(BookTitle.of("Solaris"), AuthorName.parseList("Lem"), createdByUserId = creator, pageCount = 0)
+        }
+        assertThrows<IllegalArgumentException> {
+            Book.create(BookTitle.of("Solaris"), AuthorName.parseList("Lem"), createdByUserId = creator, pageCount = Book.MAX_PAGES + 1)
+        }
+        assertEquals(
+            204,
+            Book.create(BookTitle.of("Solaris"), AuthorName.parseList("Lem"), createdByUserId = creator, pageCount = 204).pageCount,
+        )
+    }
+
+    @Test
+    fun `withPageCount sets the pages and keeps the instance when unchanged`() {
+        val book = Book.create(BookTitle.of("Solaris"), AuthorName.parseList("Lem"), createdByUserId = creator)
+
+        val counted = book.withPageCount(204)
+
+        assertEquals(204, counted.pageCount)
+        assertSame(counted, counted.withPageCount(204))
+    }
+
+    @Test
+    fun `fillGapsFrom and absorb take a missing page count but never overwrite one`() {
+        val book = Book.create(BookTitle.of("Solaris"), AuthorName.parseList("Lem"), createdByUserId = creator)
+        val filled = book.fillGapsFrom(null, null, null, BookSource.OPEN_LIBRARY, null, pageCount = 204)
+        assertEquals(204, filled.pageCount)
+
+        val duplicate = Book.create(BookTitle.of("Solaris"), AuthorName.parseList("Lem"), createdByUserId = creator, pageCount = 300)
+        assertEquals(204, filled.absorb(duplicate).pageCount)
+        assertEquals(300, book.absorb(duplicate).pageCount)
+    }
+
+    @Test
     fun `fillGapsFrom should return the same instance when nothing is missing`() {
         val book =
             Book.create(

@@ -20,6 +20,7 @@ data class FindOrCreateBookCommand(
     val publishedYear: Int? = null,
     val createdBy: UserId,
     val coverUrl: String? = null,
+    val pageCount: Int? = null,
 )
 
 /**
@@ -33,6 +34,7 @@ data class BookDraft(
     val coverUrl: String? = null,
     val source: BookSource = BookSource.MANUAL,
     val externalId: String? = null,
+    val pageCount: Int? = null,
 )
 
 /**
@@ -52,6 +54,7 @@ class FindOrCreateBook(
                 isbn = command.isbn?.takeIf { it.isNotBlank() }?.let { Isbn.parse(it) },
                 publishedYear = command.publishedYear,
                 coverUrl = CoverUrl.parseOrNull(command.coverUrl),
+                pageCount = command.pageCount,
             ),
             createdBy = command.createdBy,
         )
@@ -70,7 +73,8 @@ class FindOrCreateBook(
         val key = BookDeduplicationKey.of(draft.title, draft.authors)
         bookRepository.findByNormalizedKey(key)?.let { existing ->
             // Enrich an existing entry with data it lacks (ISBN, year, cover); nothing it has is overwritten
-            val enriched = existing.fillGapsFrom(draft.isbn, draft.publishedYear, draft.coverUrl, draft.source, draft.externalId)
+            val enriched =
+                existing.fillGapsFrom(draft.isbn, draft.publishedYear, draft.coverUrl, draft.source, draft.externalId, draft.pageCount)
             return if (enriched === existing) existing else bookRepository.save(enriched)
         }
 
@@ -84,6 +88,7 @@ class FindOrCreateBook(
                 source = draft.source,
                 externalId = draft.externalId,
                 createdByUserId = createdBy,
+                pageCount = draft.pageCount,
             ),
         )
     }
@@ -109,6 +114,7 @@ class FindOrCreateBook(
                 publishedYear = reference.publishedYear,
                 coverUrl = reference.coverUrl,
                 createdBy = requestedBy,
+                pageCount = reference.pageCount,
             ),
         )
     }

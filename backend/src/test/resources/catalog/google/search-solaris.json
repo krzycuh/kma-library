@@ -1,0 +1,26 @@
+{
+  "kind": "books#volumes",
+  "totalItems": 2,
+  "items": [
+    {
+      "kind": "books#volume",
+      "id": "abc123",
+      "volumeInfo": {
+        "title": "Solaris",
+        "authors": ["Stanisław Lem"],
+        "publishedDate": "2002",
+        "pageCount": 224
+      }
+    },
+    {
+      "kind": "books#volume",
+      "id": "def456",
+      "volumeInfo": {
+        "title": "Lem",
+        "subtitle": "a biography",
+        "authors": ["Wojciech Orliński"],
+        "pageCount": 440
+      }
+    }
+  ]
+}

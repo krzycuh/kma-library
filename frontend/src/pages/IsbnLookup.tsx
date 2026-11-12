@@ -163,6 +163,7 @@ export function IsbnLookup() {
               <p className="text-sm text-gray-500">
                 ISBN {result.isbn}
                 {preview.publishedYear ? ` · ${preview.publishedYear}` : ''}
+                {preview.pageCount ? ` · ${t.book.pages(preview.pageCount)}` : ''}
               </p>
               {result.book && (
                 <Link to={`/books/${result.book.id}`} className="inline-block pt-1 text-sm font-medium text-blue-600 hover:text-blue-700">

@@ -17,6 +17,7 @@ data class UpdateBookCommand(
     val isbn: String?,
     val publishedYear: Int?,
     val coverUrl: String?,
+    val pageCount: Int?,
     val requestedBy: UserId,
     val isAdmin: Boolean,
 )
@@ -48,6 +49,7 @@ class UpdateBook(
                 isbn = isbn,
                 publishedYear = command.publishedYear,
                 coverUrl = CoverUrl.parseOrNull(command.coverUrl),
+                pageCount = command.pageCount,
             ),
         )
     }

@@ -12,6 +12,7 @@ import { ColumnChart } from '../components/charts/ColumnChart';
 import { BarList } from '../components/charts/BarList';
 import { getApiErrorMessage } from '../utils/apiError';
 import {
+  averagePages,
   averagePerYear,
   bestYear,
   formatAverage,
@@ -29,16 +30,31 @@ interface StatTileProps {
   label: string;
   value: string | number;
   hint?: string;
+  /** Makes the tile a link (e.g. to the book it names) */
+  to?: string;
+  /** Smaller type for a text value such as a title */
+  valueClassName?: string;
 }
 
-function StatTile({ label, value, hint }: StatTileProps) {
-  return (
-    <div className="rounded-lg bg-white p-4 shadow-sm sm:p-5">
+function StatTile({ label, value, hint, to, valueClassName = 'text-3xl' }: StatTileProps) {
+  const content = (
+    <>
       <p className="text-sm font-medium text-gray-600">{label}</p>
-      <p className="mt-1 truncate text-3xl font-bold text-gray-900">{value}</p>
+      <p className={`mt-1 truncate font-bold text-gray-900 ${valueClassName}`} title={typeof value === 'string' ? value : undefined}>
+        {value}
+      </p>
       {hint && <p className="mt-1 truncate text-xs text-gray-500">{hint}</p>}
-    </div>
+    </>
   );
+  const classes = 'block min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5';
+  if (to) {
+    return (
+      <Link to={to} className={`${classes} transition-colors hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500`}>
+        {content}
+      </Link>
+    );
+  }
+  return <div className={classes}>{content}</div>;
 }
 
 function ChartCard({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
@@ -76,10 +92,35 @@ function Highlights({ stats, period, year }: { stats: ReadingStatisticsData; per
   const best = bestYear(stats);
   const bestMonth = maxCounted(period.months);
   const season = maxCounted(period.seasons);
+  const pagesPerBook = averagePages(period);
+  const longest = period.longestBook;
+
+  const pagesTile = (
+    <StatTile
+      label={t.stats.pagesRead}
+      value={period.pages > 0 ? period.pages.toLocaleString('pl-PL') : t.stats.noData}
+      hint={
+        period.booksWithoutPages > 0
+          ? t.stats.withoutPages(period.booksWithoutPages)
+          : pagesPerBook !== null
+            ? t.stats.pagesPerBook(pagesPerBook)
+            : undefined
+      }
+    />
+  );
+  const longestTile = (
+    <StatTile
+      label={t.stats.longestBook}
+      value={longest ? longest.title : t.stats.noData}
+      hint={longest ? t.book.pages(longest.pageCount) : undefined}
+      to={longest ? `/books/${longest.bookId}` : undefined}
+      valueClassName="text-xl sm:text-2xl"
+    />
+  );
 
   if (year === null) {
     return (
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <StatTile label={t.stats.booksTotal} value={period.books} hint={t.stats.uniqueBooks(period.uniqueBooks, rereads)} />
         <StatTile
           label={t.stats.averagePerYear}
@@ -88,6 +129,8 @@ function Highlights({ stats, period, year }: { stats: ReadingStatisticsData; per
         />
         <StatTile label={t.stats.bestYear} value={best?.year ?? t.stats.noData} hint={best ? books(best.books) : undefined} />
         <StatTile label={t.stats.favouriteSeason} value={season ? t.seasons[season.season] : t.stats.noData} hint={season ? books(season.count) : undefined} />
+        {pagesTile}
+        {longestTile}
       </div>
     );
   }
@@ -96,7 +139,7 @@ function Highlights({ stats, period, year }: { stats: ReadingStatisticsData; per
   const yearHint =
     previous !== null ? t.stats.previousYear(year - 1, previous) : year === stats.currentYear ? t.stats.yearInProgress : undefined;
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
       <StatTile label={t.stats.booksInYear(year)} value={period.books} hint={rereads > 0 ? t.stats.uniqueBooks(period.uniqueBooks, rereads) : yearHint} />
       <StatTile
         label={t.stats.averageRating}
@@ -105,6 +148,8 @@ function Highlights({ stats, period, year }: { stats: ReadingStatisticsData; per
       />
       <StatTile label={t.stats.bestMonth} value={bestMonth ? t.months[bestMonth.month - 1] : t.stats.noData} hint={bestMonth ? books(bestMonth.count) : undefined} />
       <StatTile label={t.stats.favouriteSeason} value={season ? t.seasons[season.season] : t.stats.noData} hint={season ? books(season.count) : undefined} />
+      {pagesTile}
+      {longestTile}
     </div>
   );
 }
@@ -208,6 +253,24 @@ export function Statistics() {
                 />
               ) : (
                 <p className="py-6 text-center text-sm text-gray-500">{t.stats.noMonths}</p>
+              )}
+            </ChartCard>
+
+            <ChartCard title={t.stats.chartPages} hint={period.booksWithoutPages > 0 ? t.stats.withoutPages(period.booksWithoutPages) : undefined}>
+              {period.pages > 0 ? (
+                <ColumnChart
+                  items={period.pagesByMonth.map((m) => ({
+                    key: String(m.month),
+                    label: t.monthsShort[m.month - 1],
+                    title: t.months[m.month - 1],
+                    value: m.count,
+                  }))}
+                  describeValue={(n) => t.book.pages(n)}
+                  denseLabels
+                  color={2}
+                />
+              ) : (
+                <p className="py-6 text-center text-sm text-gray-500">{t.stats.noPages}</p>
               )}
             </ChartCard>
 
