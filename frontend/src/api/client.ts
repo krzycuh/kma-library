@@ -61,9 +61,10 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed - clear tokens and redirect to login
+        // Refresh failed - clear tokens (and any admin preview) and redirect to login
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        writeViewedUser(null);
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
