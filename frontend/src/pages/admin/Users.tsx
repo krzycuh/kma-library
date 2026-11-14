@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@headlessui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminUsersApi } from '../../api/adminUsers';
@@ -9,6 +10,7 @@ import { LoadingSkeleton } from '../../components/LoadingSkeleton';
 import { Pagination } from '../../components/Pagination';
 import { ConfirmationModal } from '../../components/ConfirmationModal';
 import { useAuth } from '../../hooks/useAuth';
+import { useViewAs } from '../../hooks/useViewAs';
 import { useToast } from '../../hooks/useToast';
 import { t } from '../../i18n';
 import type { UserSummary } from '../../types/admin';
@@ -37,10 +39,12 @@ function roleLabel(role: string) {
 }
 
 /**
- * Admin: list users, block/unblock, reset password.
+ * Admin: list users, block/unblock, reset password, preview a user's account.
  */
 export function AdminUsers() {
   const { user: currentUser } = useAuth();
+  const { startViewing } = useViewAs();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toast = useToast();
   const [search, setSearch] = useState('');
@@ -85,6 +89,16 @@ export function AdminUsers() {
     onError: (err) => toast.error(getApiErrorMessage(err)),
   });
 
+  const viewAsMutation = useMutation({
+    mutationFn: (u: UserSummary) => adminUsersApi.viewAs(u.id),
+    onSuccess: (viewed) => {
+      startViewing({ id: viewed.id, name: viewed.name, email: viewed.email });
+      toast.info(t.viewAs.started(viewed.name));
+      navigate('/');
+    },
+    onError: (err) => toast.error(getApiErrorMessage(err)),
+  });
+
   const closeReset = () => {
     setResetting(null);
     setNewPassword('');
@@ -111,6 +125,14 @@ export function AdminUsers() {
         </button>
         <button type="button" className={smallButton} onClick={() => setResetting(u)}>
           {t.admin.resetPassword}
+        </button>
+        <button
+          type="button"
+          className={smallButton}
+          disabled={isSelf || viewAsMutation.isPending}
+          onClick={() => viewAsMutation.mutate(u)}
+        >
+          {t.admin.viewAs}
         </button>
       </div>
     );

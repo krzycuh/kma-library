@@ -3,6 +3,7 @@ package pl.kmazurek.library.application.usecase.user
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -36,6 +37,15 @@ class AdminUserUseCasesTest {
     fun `admin cannot deactivate self`() {
         assertThrows<CannotModifySelfException> { SetUserActive(userRepository).execute(admin, false, admin) }
         verify(exactly = 0) { userRepository.save(any()) }
+    }
+
+    @Test
+    fun `admin reads a single user before viewing as them`() {
+        every { userRepository.findById(user.id) } returns user
+        assertEquals(user, GetUser(userRepository).execute(user.id))
+
+        every { userRepository.findById(any()) } returns null
+        assertThrows<UserNotFoundException> { GetUser(userRepository).execute(UserId.generate()) }
     }
 
     @Test

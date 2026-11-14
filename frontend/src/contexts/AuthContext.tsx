@@ -1,7 +1,9 @@
 import React, { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { authApi } from '../api/auth';
+import { UserRole } from '../types/auth';
 import type { User, LoginRequest, RegisterRequest } from '../types/auth';
+import { writeViewedUser } from '../utils/viewAs';
 
 /**
  * Authentication context and provider
@@ -37,6 +39,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           const userData = await authApi.getCurrentUser();
           setUser(userData);
+          // A leftover preview from an admin session must not follow a regular user
+          if (userData.role !== UserRole.ADMIN) writeViewedUser(null);
         } catch (error) {
           console.error('Failed to load user:', error);
           localStorage.removeItem('accessToken');
@@ -69,6 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    writeViewedUser(null);
     setUser(null);
   };
 

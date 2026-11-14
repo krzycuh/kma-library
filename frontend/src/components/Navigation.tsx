@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useViewAs } from '../hooks/useViewAs';
 import { UserRole } from '../types/auth';
 import logoCard from '../assets/logo-card.svg';
 import logoCardNeon from '../assets/logo-card-neon.svg';
@@ -16,6 +17,8 @@ export function Navigation() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const isAdmin = user?.role === UserRole.ADMIN;
+  // While previewing another account: the profile would be the admin's own and adding is refused anyway
+  const { isViewing } = useViewAs();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
@@ -49,10 +52,12 @@ export function Navigation() {
         <NavIcon name="stats" />
         <span>{t.nav.stats}</span>
       </Link>
-      <Link to="/profile" className={linkClasses('/profile')} aria-label={t.nav.profile}>
-        <NavIcon name="profile" />
-        <span>{t.nav.profile}</span>
-      </Link>
+      {!isViewing && (
+        <Link to="/profile" className={linkClasses('/profile')} aria-label={t.nav.profile}>
+          <NavIcon name="profile" />
+          <span>{t.nav.profile}</span>
+        </Link>
+      )}
       {isAdmin && (
         <Link to="/admin/users" className={linkClasses('/admin/users')} aria-label={t.nav.users}>
           <NavIcon name="users" />
@@ -84,13 +89,15 @@ export function Navigation() {
           </div>
           <div className="hidden items-center space-x-2 md:flex">
             {sharedLinks}
-            <Link
-              to="/read/new"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              aria-label={t.nav.addRead}
-            >
-              {t.nav.addRead}
-            </Link>
+            {!isViewing && (
+              <Link
+                to="/read/new"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label={t.nav.addRead}
+              >
+                {t.nav.addRead}
+              </Link>
+            )}
             <ThemeSwitcher variant="compact" />
             <button
               onClick={logout}
@@ -127,13 +134,15 @@ export function Navigation() {
       >
         <div className="space-y-1 px-4 py-4">
           {sharedLinks}
-          <Link
-            to="/read/new"
-            className="flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
-            aria-label={t.nav.addRead}
-          >
-            {t.nav.addRead}
-          </Link>
+          {!isViewing && (
+            <Link
+              to="/read/new"
+              className="flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
+              aria-label={t.nav.addRead}
+            >
+              {t.nav.addRead}
+            </Link>
+          )}
           <div className="border-t border-gray-200 pt-3">
             <ThemeSwitcher />
           </div>

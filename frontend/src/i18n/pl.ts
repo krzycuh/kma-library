@@ -425,6 +425,14 @@ export const pl = {
     passwordMin: 'Hasło musi mieć co najmniej 8 znaków',
     roleAdmin: 'Admin',
     roleUser: 'Użytkownik',
+    viewAs: 'Podgląd',
+  },
+  viewAs: {
+    banner: (name: string) => `Podgląd konta: ${name}`,
+    readOnly: 'tylko do odczytu',
+    stop: 'Zakończ podgląd',
+    started: (name: string) => `Oglądasz aplikację jako ${name}`,
+    readOnlyError: 'W podglądzie konta innego użytkownika nie można nic zmieniać.',
   },
   cover: {
     hint: 'Wklej adres obrazka okładki, np. „Kopiuj adres obrazu” na stronie księgarni lub Storytela.',

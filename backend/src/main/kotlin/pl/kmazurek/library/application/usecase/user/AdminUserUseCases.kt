@@ -28,6 +28,16 @@ class ListUsers(
 }
 
 /**
+ * Use Case (admin): a single user's account summary, e.g. before viewing the app as that user
+ */
+@Service
+class GetUser(
+    private val userRepository: UserRepository,
+) {
+    fun execute(userId: UserId): User = userRepository.findById(userId) ?: throw UserNotFoundException("User not found")
+}
+
+/**
  * Use Case (admin): block / unblock a user account
  */
 @Service
