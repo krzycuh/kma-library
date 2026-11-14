@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -15,12 +16,14 @@ import pl.kmazurek.library.application.dto.PagedResponse
 import pl.kmazurek.library.application.dto.ResetPasswordRequest
 import pl.kmazurek.library.application.dto.SetUserActiveRequest
 import pl.kmazurek.library.application.dto.UserSummaryDto
+import pl.kmazurek.library.application.usecase.user.GetUser
 import pl.kmazurek.library.application.usecase.user.ListUsers
 import pl.kmazurek.library.application.usecase.user.ListUsersQuery
 import pl.kmazurek.library.application.usecase.user.ResetUserPassword
 import pl.kmazurek.library.application.usecase.user.SetUserActive
 import pl.kmazurek.library.domain.model.user.UserId
 import pl.kmazurek.library.infrastructure.logging.AuditLogger
+import pl.kmazurek.library.infrastructure.security.ViewAsUserResolver
 
 /**
  * Admin-only endpoints for managing user accounts.
@@ -30,6 +33,7 @@ import pl.kmazurek.library.infrastructure.logging.AuditLogger
 @PreAuthorize("hasRole('ADMIN')")
 class AdminUserController(
     private val listUsers: ListUsers,
+    private val getUser: GetUser,
     private val setUserActive: SetUserActive,
     private val resetUserPassword: ResetUserPassword,
     private val auditLogger: AuditLogger,
@@ -41,6 +45,19 @@ class AdminUserController(
         @RequestParam(required = false, defaultValue = "20") pageSize: Int,
     ): ResponseEntity<PagedResponse<UserSummaryDto>> {
         return ResponseEntity.ok(listUsers.execute(ListUsersQuery(searchTerm, page, pageSize)))
+    }
+
+    /**
+     * Starts viewing the app as [id]: confirms the account exists and leaves an audit trail.
+     * The viewing itself is the client sending [ViewAsUserResolver.HEADER] with its further (read-only) requests.
+     */
+    @PostMapping("/{id}/view-as")
+    fun viewAs(
+        @PathVariable id: String,
+    ): ResponseEntity<UserSummaryDto> {
+        val user = getUser.execute(UserId.fromString(id))
+        auditLogger.log("USER_VIEW_AS_STARTED", details = mapOf("userId" to id, "email" to user.email.value))
+        return ResponseEntity.ok(UserSummaryDto.fromDomain(user))
     }
 
     @PatchMapping("/{id}/active")

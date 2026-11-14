@@ -1,5 +1,6 @@
 package pl.kmazurek.library.infrastructure.api.rest.controller
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -123,6 +124,11 @@ class GlobalExceptionHandler(
     }
 }
 
-data class ErrorResponse(val message: String)
+/**
+ * Error body. [code] is a stable, machine-readable identifier for the few errors the frontend reacts to
+ * (not just displays); omitted from the JSON when absent.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class ErrorResponse(val message: String, val code: String? = null)
 
 data class ValidationErrorResponse(val message: String, val errors: Map<String, String>)

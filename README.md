@@ -9,7 +9,7 @@ Aplikacja webowa (mobile-first, PWA) do prowadzenia rejestru przeczytanych ksią
 - **Liczba stron** – z katalogów przy imporcie po ISBN lub ręcznie; książki bez liczby stron są douzupełniane w tle po starcie aplikacji (po ISBN, a bez ISBN po tytule i autorze), z przebiegiem w logach.
 - **Biblioteczka** – egzemplarze na półce, status (na półce / pożyczona / zgubiona / oddana), pożyczenie komuś (imię i nazwisko, data, termin), zwrot, historia pożyczeń, lista dłużników z zaznaczeniem przeterminowanych.
 - **Katalog książek** – wspólny słownik tytułów (deduplikacja po ISBN lub po znormalizowanym tytule i autorze), autouzupełnianie przy dodawaniu, karta książki łącząca czytania i egzemplarze.
-- **Konta** – rejestracja (wyłączalna flagą), logowanie JWT z refresh tokenem, profil, panel admina (blokada konta, reset hasła).
+- **Konta** – rejestracja (wyłączalna flagą), logowanie JWT z refresh tokenem, profil, panel admina (blokada konta, reset hasła, podgląd konta użytkownika – admin widzi aplikację tak, jak widzi ją dany użytkownik, tylko do odczytu).
 - **W planach** (fazy 6–8): ISBN + Open Library, skaner kodów kreskowych, biblioteczka rodzinna.
 
 ## Stack

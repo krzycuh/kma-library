@@ -8,3 +8,6 @@ export interface UserSummary {
   isActive: boolean;
   createdAt: string;
 }
+
+/** The account an admin is previewing (see utils/viewAs.ts). */
+export type ViewedUser = Pick<UserSummary, 'id' | 'name' | 'email'>;

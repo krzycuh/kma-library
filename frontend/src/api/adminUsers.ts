@@ -13,6 +13,12 @@ export const adminUsersApi = {
     return response.data;
   },
 
+  /** Starts previewing the user's account (audited); the preview itself is a request header, see utils/viewAs.ts. */
+  viewAs: async (id: string): Promise<UserSummary> => {
+    const response = await apiClient.post<UserSummary>(`/admin/users/${id}/view-as`);
+    return response.data;
+  },
+
   resetPassword: async (id: string, newPassword: string): Promise<void> => {
     await apiClient.patch(`/admin/users/${id}/password`, { newPassword });
   },
