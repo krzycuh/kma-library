@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { readingEntriesApi } from '../api/readingEntries';
 import { booksApi } from '../api/books';
+import { READING_FORMATS, type ReadingFormat } from '../types/reading';
 import { t } from '../i18n';
 import { PageHeader } from '../components/PageHeader';
 import { BookPicker } from '../components/BookPicker';
@@ -40,6 +41,7 @@ export function ReadingEntryForm() {
   const [month, setMonth] = useState<number | null>(null);
   const [rating, setRating] = useState<number | null>(null);
   const [review, setReview] = useState('');
+  const [format, setFormat] = useState<ReadingFormat | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const entryQuery = useQuery({
@@ -62,6 +64,7 @@ export function ReadingEntryForm() {
       setMonth(entry.finishedMonth);
       setRating(entry.rating);
       setReview(entry.review ?? '');
+      setFormat(entry.format);
     }
   }, [entryQuery.data]);
 
@@ -85,6 +88,7 @@ export function ReadingEntryForm() {
         finishedMonth: year ? month : null,
         rating,
         review: review.trim() || null,
+        format,
       };
       return isEdit
         ? readingEntriesApi.update(id!, payload)
@@ -139,6 +143,32 @@ export function ReadingEntryForm() {
           <span className="mb-1 block text-sm font-medium text-gray-700">{t.reading.rating}</span>
           <RatingStars value={rating} onChange={setRating} size="lg" />
         </div>
+
+        <fieldset>
+          <legend className="mb-1 block text-sm font-medium text-gray-700">
+            {t.reading.format} <span className="font-normal text-gray-400">({t.common.optional})</span>
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {[null, ...READING_FORMATS].map((option) => {
+              const selected = format === option;
+              return (
+                <button
+                  key={option ?? 'none'}
+                  type="button"
+                  onClick={() => setFormat(option)}
+                  aria-pressed={selected}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
+                    selected
+                      ? 'border-blue-600 bg-blue-600 text-white'
+                      : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {option ? t.reading.formatLabel[option] : t.reading.formatUnspecified}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
 
         <div>
           <label htmlFor="reading-review" className="block text-sm font-medium text-gray-700">

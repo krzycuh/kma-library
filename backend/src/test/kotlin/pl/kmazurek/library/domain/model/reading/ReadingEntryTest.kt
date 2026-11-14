@@ -59,11 +59,26 @@ class ReadingEntryTest {
     @Test
     fun `update should replace fields and blank review becomes null`() {
         val entry = ReadingEntry.create(reader, book, FinishedPeriod(2020), Rating(2), "meh")
-        val updated = entry.update(FinishedPeriod(2021, 3), Rating(5), "   ")
+        val updated = entry.update(FinishedPeriod(2021, 3), Rating(5), "   ", ReadingFormat.AUDIOBOOK)
 
         assertEquals(FinishedPeriod(2021, 3), updated.finishedOn)
         assertEquals(5, updated.rating?.value)
         assertNull(updated.review)
+        assertEquals(ReadingFormat.AUDIOBOOK, updated.format)
         assertEquals(entry.id, updated.id)
+    }
+
+    @Test
+    fun `format is optional and defaults to unspecified`() {
+        assertNull(ReadingEntry.create(reader, book).format)
+        assertEquals(ReadingFormat.PAPER, ReadingEntry.create(reader, book, format = ReadingFormat.PAPER).format)
+    }
+
+    @Test
+    fun `update can clear the format`() {
+        val entry = ReadingEntry.create(reader, book, format = ReadingFormat.EBOOK)
+        val updated = entry.update(entry.finishedOn, entry.rating, entry.review, null)
+
+        assertNull(updated.format)
     }
 }

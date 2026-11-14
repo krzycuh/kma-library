@@ -7,6 +7,7 @@ import { t } from '../i18n';
 import { PageHeader } from '../components/PageHeader';
 import { BookCover } from '../components/BookCover';
 import { RatingStars } from '../components/RatingStars';
+import { ReadingFormatBadge } from '../components/ReadingFormatBadge';
 import { Pagination } from '../components/Pagination';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorMessage } from '../components/ErrorMessage';
@@ -175,6 +176,7 @@ export function ReadingList() {
                   <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                     <span className="text-xs text-gray-500">{formatFinishedPeriod(entry.finishedYear, entry.finishedMonth)}</span>
                     <RatingStars value={entry.rating} size="sm" />
+                    <ReadingFormatBadge format={entry.format} />
                   </div>
                   {entry.review && <p className="mt-1 text-sm text-gray-700">{excerpt(entry.review)}</p>}
                   <div className="flex items-center gap-5 text-sm">

@@ -82,6 +82,7 @@ data class ReadingEntry(
     val finishedOn: FinishedPeriod?,       // null = "nie pamiętam kiedy"; FinishedPeriod(year, month?) – bez dnia
     val rating: Rating? = null,            // VO: 1..5
     val review: String? = null,            // krótka notatka
+    val format: ReadingFormat? = null,     // PAPER / EBOOK / AUDIOBOOK; null = nie podano (tylko do wyświetlania, poza statystykami)
     val createdAt, val updatedAt,
 )
 ```

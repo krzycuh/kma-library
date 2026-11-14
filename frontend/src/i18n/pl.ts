@@ -225,6 +225,13 @@ export const pl = {
     noRating: 'bez oceny',
     review: 'Notatka / recenzja',
     reviewPlaceholder: 'Kilka słów o książce...',
+    format: 'Wersja',
+    formatUnspecified: 'nie podano',
+    formatLabel: {
+      PAPER: 'Papierowa',
+      EBOOK: 'E-book',
+      AUDIOBOOK: 'Audiobook',
+    } as Record<string, string>,
     filterYear: 'Rok',
     filterRating: 'Ocena',
     allYears: 'Wszystkie lata',

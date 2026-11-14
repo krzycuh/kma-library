@@ -27,6 +27,8 @@ class ReadingEntryJpaEntity(
     var rating: Short? = null,
     @Column(columnDefinition = "TEXT")
     var review: String? = null,
+    @Column(length = 20)
+    var format: String? = null,
     @Column(name = "created_at", nullable = false, updatable = false)
     var createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(name = "updated_at", nullable = false)

@@ -101,6 +101,7 @@ class ReadingEntryController(
                     finishedMonth = request.finishedMonth,
                     rating = request.rating,
                     review = request.review,
+                    format = request.format,
                 ),
             )
         auditLogger.log("READING_ENTRY_CREATED", details = mapOf("entryId" to entry.id, "bookId" to book.id))
@@ -122,6 +123,7 @@ class ReadingEntryController(
                     finishedMonth = request.finishedMonth,
                     rating = request.rating,
                     review = request.review,
+                    format = request.format,
                 ),
             )
         auditLogger.log("READING_ENTRY_UPDATED", details = mapOf("entryId" to id))

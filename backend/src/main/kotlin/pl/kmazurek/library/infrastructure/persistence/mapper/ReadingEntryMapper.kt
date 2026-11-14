@@ -5,6 +5,7 @@ import pl.kmazurek.library.domain.model.reading.FinishedPeriod
 import pl.kmazurek.library.domain.model.reading.Rating
 import pl.kmazurek.library.domain.model.reading.ReadingEntry
 import pl.kmazurek.library.domain.model.reading.ReadingEntryId
+import pl.kmazurek.library.domain.model.reading.ReadingFormat
 import pl.kmazurek.library.domain.model.reading.ReadingStatus
 import pl.kmazurek.library.domain.model.user.UserId
 import pl.kmazurek.library.infrastructure.persistence.entity.ReadingEntryJpaEntity
@@ -19,6 +20,7 @@ object ReadingEntryMapper {
             finishedOn = jpa.finishedYear?.let { FinishedPeriod(it.toInt(), jpa.finishedMonth?.toInt()) },
             rating = jpa.rating?.let { Rating(it.toInt()) },
             review = jpa.review,
+            format = jpa.format?.let { ReadingFormat.valueOf(it) },
             createdAt = jpa.createdAt,
             updatedAt = jpa.updatedAt,
         )
@@ -33,6 +35,7 @@ object ReadingEntryMapper {
             finishedMonth = domain.finishedOn?.month?.toShort(),
             rating = domain.rating?.value?.toShort(),
             review = domain.review,
+            format = domain.format?.name,
             createdAt = domain.createdAt,
             updatedAt = domain.updatedAt,
         )

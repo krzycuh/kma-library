@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { t } from '../i18n';
 import { BookCover } from '../components/BookCover';
 import { RatingStars } from '../components/RatingStars';
+import { ReadingFormatBadge } from '../components/ReadingFormatBadge';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { ShelfItemStatusBadge } from '../components/ShelfItemStatusBadge';
@@ -152,7 +153,10 @@ export function Dashboard() {
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-medium text-gray-900">{entry.book.title}</p>
                           <p className="truncate text-sm text-gray-600">{formatAuthors(entry.book.authors)}</p>
-                          <p className="text-xs text-gray-500">{formatFinishedPeriod(entry.finishedYear, entry.finishedMonth)}</p>
+                          <p className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                            {formatFinishedPeriod(entry.finishedYear, entry.finishedMonth)}
+                            <ReadingFormatBadge format={entry.format} />
+                          </p>
                         </div>
                         <RatingStars value={entry.rating} size="sm" />
                       </Link>

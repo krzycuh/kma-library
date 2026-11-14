@@ -14,6 +14,7 @@ import { t } from '../i18n';
 import { PageHeader } from '../components/PageHeader';
 import { BookCover } from '../components/BookCover';
 import { RatingStars } from '../components/RatingStars';
+import { ReadingFormatBadge } from '../components/ReadingFormatBadge';
 import { ShelfItemStatusBadge } from '../components/ShelfItemStatusBadge';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorMessage } from '../components/ErrorMessage';
@@ -379,7 +380,10 @@ export function BookDetail() {
             {readsQuery.data.items.map((entry) => (
               <li key={entry.id} className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
-                  <p className="text-sm text-gray-900">{formatFinishedPeriod(entry.finishedYear, entry.finishedMonth)}</p>
+                  <p className="flex flex-wrap items-center gap-2 text-sm text-gray-900">
+                    {formatFinishedPeriod(entry.finishedYear, entry.finishedMonth)}
+                    <ReadingFormatBadge format={entry.format} />
+                  </p>
                   {entry.review && <p className="truncate text-xs text-gray-500">{entry.review}</p>}
                 </div>
                 <div className="flex items-center gap-3">
