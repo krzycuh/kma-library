@@ -13,6 +13,7 @@ import pl.kmazurek.library.domain.model.reading.FinishedPeriod
 import pl.kmazurek.library.domain.model.reading.Rating
 import pl.kmazurek.library.domain.model.reading.ReadingEntry
 import pl.kmazurek.library.domain.model.reading.ReadingEntryId
+import pl.kmazurek.library.domain.model.reading.ReadingFormat
 import pl.kmazurek.library.domain.model.user.UserId
 import pl.kmazurek.library.domain.repository.BookRepository
 import pl.kmazurek.library.domain.repository.ReadingEntryFilter
@@ -26,6 +27,7 @@ data class AddReadingEntryCommand(
     val finishedMonth: Int?,
     val rating: Int?,
     val review: String?,
+    val format: ReadingFormat? = null,
 )
 
 data class UpdateReadingEntryCommand(
@@ -35,6 +37,7 @@ data class UpdateReadingEntryCommand(
     val finishedMonth: Int?,
     val rating: Int?,
     val review: String?,
+    val format: ReadingFormat? = null,
 )
 
 data class ListReadingEntriesQuery(
@@ -76,6 +79,7 @@ class AddReadingEntry(
                 finishedOn = toFinishedPeriod(command.finishedYear, command.finishedMonth),
                 rating = command.rating?.let { Rating(it) },
                 review = command.review,
+                format = command.format,
             )
         return readingEntryRepository.save(entry) to book
     }
@@ -96,6 +100,7 @@ class UpdateReadingEntry(
                 finishedOn = toFinishedPeriod(command.finishedYear, command.finishedMonth),
                 rating = command.rating?.let { Rating(it) },
                 review = command.review,
+                format = command.format,
             )
         val saved = readingEntryRepository.save(updated)
         val book = bookRepository.findById(saved.bookId) ?: throw ReadingEntryNotFoundException("Book of entry missing")

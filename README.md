@@ -4,7 +4,7 @@ Aplikacja webowa (mobile-first, PWA) do prowadzenia rejestru przeczytanych ksią
 
 ## Funkcje
 
-- **Przeczytane** – tytuł, autor, rok i opcjonalnie miesiąc przeczytania, ocena 1–5, notatka; lista z filtrami (rok, ocena, szukaj) i podsumowaniem roku.
+- **Przeczytane** – tytuł, autor, rok i opcjonalnie miesiąc przeczytania, ocena 1–5, notatka, opcjonalnie wersja (papierowa / e-book / audiobook, bez wpływu na statystyki); lista z filtrami (rok, ocena, szukaj) i podsumowaniem roku.
 - **Statystyki** – książki w kolejnych latach i miesiącach, pory roku, rozkład ocen, przeczytane strony i najgrubsza książka, najczęściej czytani autorzy; dla wszystkich lat lub wybranego roku.
 - **Liczba stron** – z katalogów przy imporcie po ISBN lub ręcznie; książki bez liczby stron są douzupełniane w tle po starcie aplikacji (po ISBN, a bez ISBN po tytule i autorze), z przebiegiem w logach.
 - **Biblioteczka** – egzemplarze na półce, status (na półce / pożyczona / zgubiona / oddana), pożyczenie komuś (imię i nazwisko, data, termin), zwrot, historia pożyczeń, lista dłużników z zaznaczeniem przeterminowanych.

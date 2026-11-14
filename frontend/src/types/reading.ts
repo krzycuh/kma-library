@@ -2,6 +2,11 @@ import type { Book, BookReference } from './book';
 
 export type ReadingStatus = 'FINISHED';
 
+/** Edition the reader used; shown and edited, but not aggregated in statistics */
+export type ReadingFormat = 'PAPER' | 'EBOOK' | 'AUDIOBOOK';
+
+export const READING_FORMATS: readonly ReadingFormat[] = ['PAPER', 'EBOOK', 'AUDIOBOOK'];
+
 export interface ReadingEntry {
   id: string;
   book: Book;
@@ -10,6 +15,7 @@ export interface ReadingEntry {
   finishedMonth: number | null;
   rating: number | null;
   review: string | null;
+  format: ReadingFormat | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -20,6 +26,7 @@ export interface CreateReadingEntryRequest {
   finishedMonth?: number | null;
   rating?: number | null;
   review?: string | null;
+  format?: ReadingFormat | null;
 }
 
 export interface UpdateReadingEntryRequest {
@@ -27,6 +34,7 @@ export interface UpdateReadingEntryRequest {
   finishedMonth?: number | null;
   rating?: number | null;
   review?: string | null;
+  format?: ReadingFormat | null;
 }
 
 export interface ReadingEntryListParams {

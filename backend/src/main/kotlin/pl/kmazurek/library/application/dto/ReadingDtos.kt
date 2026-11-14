@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
 import pl.kmazurek.library.domain.model.catalog.Book
 import pl.kmazurek.library.domain.model.reading.ReadingEntry
+import pl.kmazurek.library.domain.model.reading.ReadingFormat
 import pl.kmazurek.library.domain.model.reading.ReadingStatus
 import java.time.LocalDateTime
 
@@ -17,6 +18,8 @@ data class ReadingEntryDto(
     val finishedMonth: Int?,
     val rating: Int?,
     val review: String?,
+    /** Edition read (paper / e-book / audiobook); null when the reader didn't say */
+    val format: ReadingFormat?,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 ) {
@@ -33,6 +36,7 @@ data class ReadingEntryDto(
                 finishedMonth = entry.finishedOn?.month,
                 rating = entry.rating?.value,
                 review = entry.review,
+                format = entry.format,
                 createdAt = entry.createdAt,
                 updatedAt = entry.updatedAt,
             )
@@ -50,6 +54,7 @@ data class CreateReadingEntryRequest(
     val rating: Int? = null,
     @field:Size(max = 5000, message = "Review cannot exceed 5000 characters")
     val review: String? = null,
+    val format: ReadingFormat? = null,
 )
 
 data class UpdateReadingEntryRequest(
@@ -61,6 +66,7 @@ data class UpdateReadingEntryRequest(
     val rating: Int? = null,
     @field:Size(max = 5000, message = "Review cannot exceed 5000 characters")
     val review: String? = null,
+    val format: ReadingFormat? = null,
 )
 
 data class ReadingSummaryDto(

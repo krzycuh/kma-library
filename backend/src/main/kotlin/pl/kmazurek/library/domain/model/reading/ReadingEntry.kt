@@ -17,6 +17,7 @@ data class ReadingEntry(
     val finishedOn: FinishedPeriod? = null,
     val rating: Rating? = null,
     val review: String? = null,
+    val format: ReadingFormat? = null,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 ) {
@@ -31,11 +32,13 @@ data class ReadingEntry(
         finishedOn: FinishedPeriod?,
         rating: Rating?,
         review: String?,
+        format: ReadingFormat?,
     ): ReadingEntry =
         copy(
             finishedOn = finishedOn,
             rating = rating,
             review = review?.trim()?.takeIf { it.isNotEmpty() },
+            format = format,
             updatedAt = LocalDateTime.now(),
         )
 
@@ -50,6 +53,7 @@ data class ReadingEntry(
             finishedOn: FinishedPeriod? = null,
             rating: Rating? = null,
             review: String? = null,
+            format: ReadingFormat? = null,
         ): ReadingEntry {
             val now = LocalDateTime.now()
             return ReadingEntry(
@@ -60,6 +64,7 @@ data class ReadingEntry(
                 finishedOn = finishedOn,
                 rating = rating,
                 review = review?.trim()?.takeIf { it.isNotEmpty() },
+                format = format,
                 createdAt = now,
                 updatedAt = now,
             )

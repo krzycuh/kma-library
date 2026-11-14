@@ -16,6 +16,7 @@ import pl.kmazurek.library.domain.model.catalog.BookTitle
 import pl.kmazurek.library.domain.model.reading.FinishedPeriod
 import pl.kmazurek.library.domain.model.reading.Rating
 import pl.kmazurek.library.domain.model.reading.ReadingEntry
+import pl.kmazurek.library.domain.model.reading.ReadingFormat
 import pl.kmazurek.library.domain.model.user.UserId
 import pl.kmazurek.library.domain.repository.BookRepository
 import pl.kmazurek.library.domain.repository.ReadingEntryRepository
@@ -50,6 +51,32 @@ class ReadingEntryUseCasesTest {
         assertEquals(FinishedPeriod(2023, 5), entry.finishedOn)
         assertEquals(4, entry.rating?.value)
         verify { entryRepository.save(any()) }
+    }
+
+    @Test
+    fun `add entry stores the format when given`() {
+        every { findOrCreateBook.resolve(any(), reader) } returns book
+        val useCase = AddReadingEntry(entryRepository, findOrCreateBook)
+
+        val command =
+            AddReadingEntryCommand(reader, BookReference(bookId = book.id.toString()), 2023, null, null, null, ReadingFormat.AUDIOBOOK)
+
+        val (entry, _) = useCase.execute(command)
+
+        assertEquals(ReadingFormat.AUDIOBOOK, entry.format)
+    }
+
+    @Test
+    fun `update replaces the format`() {
+        val entry = ReadingEntry.create(reader, book.id, FinishedPeriod(2020), format = ReadingFormat.PAPER)
+        every { entryRepository.findById(entry.id) } returns entry
+        val useCase = UpdateReadingEntry(entryRepository, bookRepository)
+
+        val command = UpdateReadingEntryCommand(entry.id, reader, 2020, null, null, null, ReadingFormat.EBOOK)
+
+        val (updated, _) = useCase.execute(command)
+
+        assertEquals(ReadingFormat.EBOOK, updated.format)
     }
 
     @Test
